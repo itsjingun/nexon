@@ -38,7 +38,7 @@ class NextToGoRacesActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
 
-        viewModel.doNothing()
+        viewModel.fetchNextRaces()
     }
 }
 

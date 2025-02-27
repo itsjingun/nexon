@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.dagger.hilt.android)
 }
@@ -54,9 +55,20 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Kotlin
+    implementation(libs.kotlinx.serialization.json)
+
     // DI
     implementation(libs.dagger.hilt.android)
     ksp(libs.dagger.hilt.android.compiler)
+
+    // Network
+    implementation(libs.squareup.okhttp)
+    implementation(libs.squareup.retrofit)
+    implementation(libs.squareup.retrofit.converter.kotlinx)
+
+    // Miscellaneous
+    implementation(libs.timber)
 
     // Testing
     testImplementation(libs.junit)

@@ -10,14 +10,23 @@ agp = "8.7.3"
 composeBom = "2024.04.01"
 coreKtx = "1.10.1"
 espressoCore = "3.5.1"
-hilt = "1.2.0"
 junitVersion = "1.1.5"
 lifecycleRuntimeKtx = "2.6.1"
+
+# KotlinX
+kotlinx-serialization = "1.8.0"
 
 # DI
 dagger = "2.55"
 
-# Testing
+# Network
+okhttp = "4.12.0"
+retrofit = "2.11.0"
+
+# Logging
+timber = "5.0.1"
+
+# Miscellaneous
 junit = "4.13.2"
 
 [libraries]
@@ -37,9 +46,20 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
+# Kotlin
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
 # DI
 dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
 dagger-hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "dagger" }
+
+# Network
+squareup-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+squareup-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+squareup-retrofit-converter-kotlinx = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofit" }
+
+# Miscellaneous
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -50,3 +70,4 @@ dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "da
 devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization" }
