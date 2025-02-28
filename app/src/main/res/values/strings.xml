@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Nexon</string>
+
+    <string name="racing_category_greyhound">Greyhound</string>
+    <string name="racing_category_harness">Harness</string>
+    <string name="racing_category_horse">Horse</string>
 </resources>

@@ -1,17 +1,21 @@
 package com.entaingroup.nexon.nexttogo
 
 import com.entaingroup.nexon.nexttogo.domain.Race
+import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import kotlinx.coroutines.flow.Flow
 
 internal interface NextToGoRacesContract {
 
     data class ViewState(
         val isLoading: Boolean,
-        val races: List<Race>?,
+        val racesFlow: Flow<List<Race>>?,
+        val selectedCategories: Set<RacingCategory>,
     ) {
         companion object {
-            val Initial = ViewState(
+            val INITIAL = ViewState(
                 isLoading = true,
-                races = null,
+                racesFlow = null,
+                selectedCategories = emptySet(),
             )
         }
     }

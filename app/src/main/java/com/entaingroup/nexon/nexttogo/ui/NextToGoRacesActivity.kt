@@ -26,15 +26,10 @@ class NextToGoRacesActivity : ComponentActivity() {
             NexonTheme {
                 NextToGoRacesScreen(
                     viewState = viewState,
+                    onCategoryChipClick = viewModel::toggleRacingCategory,
                     ticker = viewModel.ticker,
                 )
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        viewModel.fetchNextRaces()
     }
 }

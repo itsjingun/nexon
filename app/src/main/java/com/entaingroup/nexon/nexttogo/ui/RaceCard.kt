@@ -18,8 +18,7 @@ import com.entaingroup.nexon.nexttogo.domain.Race
 import kotlinx.coroutines.flow.Flow
 import java.time.Duration
 import java.time.Instant
-import java.util.Locale
-import kotlin.math.max
+import kotlin.math.abs
 
 @Composable
 internal fun RaceCard(
@@ -53,24 +52,27 @@ internal fun RaceCard(
     }
 }
 
-private fun getTimeRemainingUntil(then: Instant): String {
+/**
+ * Get time remaining until an [Instant] in the format:
+ * - 5h 9m 4s
+ * - 24m 48s
+ * - 0s
+ */
+internal fun getTimeRemainingUntil(then: Instant): String {
     val now = Instant.now()
     val duration = Duration.between(now, then)
-    val diff = max(duration.seconds, 0)
+    val isNegative = duration.seconds < 0
+    val diff = abs(duration.seconds)
 
     val hours = diff / 3600
     val minutes = (diff % 3600) / 60
     val seconds = diff % 60
 
-    val format: String
-    val args: Array<Long>
-    if (hours > 0) {
-        format = "%01d:%02d:%02d"
-        args = arrayOf(hours, minutes, seconds)
-    } else {
-        format = "%01d:%02d"
-        args = arrayOf(minutes, seconds)
-    }
+    val parts = mutableListOf<String>()
+    if (hours > 0) parts.add("${hours}h")
+    if (minutes > 0) parts.add("${minutes}m")
+    if (seconds > 0 || (hours == 0L && minutes == 0L)) parts.add("${seconds}s")
 
-    return String.format(Locale.getDefault(), format, *args)
+    val result = parts.joinToString(" ")
+    return if (isNegative) "-$result" else result
 }

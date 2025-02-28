@@ -1,4 +1,4 @@
-package com.entaingroup.nexon.nexttogo.data
+package com.entaingroup.nexon.nexttogo.data.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -42,15 +42,15 @@ internal data class RaceForm(
     @SerialName("distance") val distance: Int,
     @SerialName("distance_type") val distanceType: DistanceType,
     @SerialName("distance_type_id") val distanceTypeId: String,
-    @SerialName("track_condition") val trackCondition: TrackCondition,
-    @SerialName("track_condition_id") val trackConditionId: String,
+    @SerialName("track_condition") val trackCondition: TrackCondition? = null,
+    @SerialName("track_condition_id") val trackConditionId: String? = null,
     @SerialName("weather") val weather: Weather? = null,
     @SerialName("weather_id") val weatherId: String? = null,
-    @SerialName("race_comment") val raceComment: String,
+    @SerialName("race_comment") val raceComment: String? = null,
     @SerialName("additional_data") val additionalData: String,
     @SerialName("generated") val generated: Int,
     @SerialName("silk_base_url") val silkBaseUrl: String,
-    @SerialName("race_comment_alternative") val raceCommentAlternative: String,
+    @SerialName("race_comment_alternative") val raceCommentAlternative: String? = null,
 )
 
 @Serializable
@@ -72,5 +72,5 @@ internal data class Weather(
     @SerialName("id") val id: String,
     @SerialName("name") val name: String,
     @SerialName("short_name") val shortName: String,
-    @SerialName("icon_uri") val iconUri: String,
+    @SerialName("icon_uri") val iconUri: String? = null,
 )

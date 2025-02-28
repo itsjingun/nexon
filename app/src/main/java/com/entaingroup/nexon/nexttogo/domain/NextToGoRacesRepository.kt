@@ -1,12 +1,18 @@
 package com.entaingroup.nexon.nexttogo.domain
 
+import kotlinx.coroutines.flow.Flow
+
 internal interface NextToGoRacesRepository {
 
     /**
-     * Fetches a list of the next [Race]s.
+     * A [Flow] that emits a list of upcoming [Race]s in chronological order.
      *
+     * @param categories a set of categories to filter for.
      * @param count maximum number of races to fetch.
      * @return the list of races.
      */
-    suspend fun fetchNextRaces(count: Int): List<Race>
+    fun getNextRaces(
+        categories: Set<RacingCategory> = emptySet(),
+        count: Int,
+    ): Flow<List<Race>>
 }

@@ -1,9 +1,9 @@
-package com.entaingroup.nexon.nexttogo.data
+package com.entaingroup.nexon.nexttogo.data.api
 
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-internal interface NextToGoRacesService {
+internal interface NextToGoRacesApi {
 
     @GET("rest/v1/racing/")
     suspend fun getNextRaces(
