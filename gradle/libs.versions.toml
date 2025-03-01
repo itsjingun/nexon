@@ -14,6 +14,7 @@ junitVersion = "1.1.5"
 lifecycleRuntimeComposeAndroid = "2.8.7"
 lifecycleRuntimeKtx = "2.6.1"
 room = "2.6.1"
+textGoogleFonts = "1.7.8"
 
 # KotlinX
 kotlinx-serialization = "1.8.0"
@@ -45,6 +46,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "textGoogleFonts" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }

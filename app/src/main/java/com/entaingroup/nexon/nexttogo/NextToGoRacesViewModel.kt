@@ -2,6 +2,7 @@ package com.entaingroup.nexon.nexttogo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.entaingroup.nexon.nexttogo.NextToGoRacesContract.Companion.MAX_NUMBER_OF_RACES
 import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesRepository
 import com.entaingroup.nexon.nexttogo.domain.RacingCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,10 +35,9 @@ internal class NextToGoRacesViewModel @Inject constructor(
         val selectedCategories = mutableViewState.value.selectedCategories
         mutableViewState.update {
             it.copy(
-                isLoading = false,
                 racesFlow = nextToGoRacesRepository.getNextRaces(
                     categories = selectedCategories,
-                    count = RACE_COUNT,
+                    count = MAX_NUMBER_OF_RACES,
                 ),
             )
         }
@@ -63,13 +63,9 @@ internal class NextToGoRacesViewModel @Inject constructor(
                 selectedCategories = updatedCategories,
                 racesFlow = nextToGoRacesRepository.getNextRaces(
                     categories = updatedCategories,
-                    count = RACE_COUNT,
+                    count = MAX_NUMBER_OF_RACES,
                 ),
             )
         }
-    }
-
-    companion object {
-        private const val RACE_COUNT = 5
     }
 }

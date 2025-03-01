@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.entaingroup.nexon.nexttogo.domain.Race
+import com.entaingroup.nexon.nexttogo.domain.RacingCategory
 import java.time.Instant
 
 @Entity(
@@ -23,5 +24,6 @@ internal fun DbRace.toRace(): Race = Race(
     id = id,
     name = name,
     number = number,
+    category = RacingCategory.fromId(categoryId),
     startTime = Instant.ofEpochSecond(startTime),
 )

@@ -6,5 +6,6 @@ data class Race(
     val id: String,
     val name: String,
     val number: Int,
+    val category: RacingCategory,
     val startTime: Instant,
 )
