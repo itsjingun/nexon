@@ -13,7 +13,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class NextToGoRacesActivity : ComponentActivity() {
-
     private val viewModel: NextToGoRacesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +26,7 @@ class NextToGoRacesActivity : ComponentActivity() {
                 NextToGoRacesScreen(
                     viewState = viewState,
                     onCategoryChipClick = viewModel::toggleRacingCategory,
+                    onTryAgainButtonClick = viewModel::onTryAgainButtonClick,
                     ticker = viewModel.ticker,
                 )
             }

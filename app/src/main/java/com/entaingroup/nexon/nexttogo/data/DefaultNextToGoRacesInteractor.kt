@@ -16,22 +16,36 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.Instant
 import javax.inject.Inject
 
 internal class DefaultNextToGoRacesInteractor @Inject constructor(
     private val nextToGoRacesApi: NextToGoRacesApi,
-    nextToGoDatabase: NextToGoDatabase,
+    private val nextToGoDatabase: NextToGoDatabase,
 ) : NextToGoRacesInteractor {
+    private val mutableBackgroundErrors = MutableSharedFlow<Exception>()
+    override val backgroundErrors = mutableBackgroundErrors.asSharedFlow()
 
     private val dbRaceDao = nextToGoDatabase.dbRaceDao()
 
+    /**
+     * This keeps track of the earliest race's expiry time (i.e. the time at which it should be
+     * removed from the UI) so that data can be updated when this time is reached.
+     */
     private var nextUpdateTime: Instant? = null
+
+    /**
+     * Tracks if the list of races are currently being fetched from the server.
+     *
+     * This is used to ensure only one fetch is being executed at a time.
+     */
     private var isFetching = false
 
     /**
@@ -48,11 +62,21 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
         Instant.now().minusSeconds(EXPIRY_THRESHOLD)
     )
 
+    /**
+     * A ticker that runs every second to constantly check whether data needs to be updated.
+     */
     private val mutableTicker = MutableSharedFlow<Unit>()
 
+    /**
+     * A [CoroutineScope] intended to be used for fetching races from a server in the background.
+     */
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     init {
+        startTicker()
+    }
+
+    private fun startTicker() {
         scope.launch {
             while (true) {
                 nextUpdateTime?.let { updateTime ->
@@ -110,7 +134,6 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                     if (races.size < countWithBuffer) {
                         if (!isFetching) {
                             fetchNextRaces(count + surplusCount)
-                            surplusCount += FETCH_SURPLUS_INCREMENT
                         }
                     } else {
                         // Revert to the default surplus once there is sufficient data.
@@ -135,14 +158,17 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
         scope.launch {
             delay(1000)
 
-            val apiResponse = nextToGoRacesApi.getNextRaces(
-                method = "nextraces",
-                count = count,
-            )
+            val apiResponse = try {
+                nextToGoRacesApi.getNextRaces(method = "nextraces", count = count)
+            } catch (e: Exception) {
+                // Note: Naturally we should try to handle specific exceptions separately
+                // in real world production code.
 
-            // TODO: Handle error (and possibly throw).
-
-            isFetching = false
+                mutableBackgroundErrors.emit(e)
+                return@launch
+            } finally {
+                isFetching = false
+            }
 
             val racesToInsert = apiResponse.data.raceSummaries.map { entry ->
                 val raceSummary = entry.value
@@ -154,7 +180,22 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                     startTime = raceSummary.advertisedStart.seconds,
                 )
             }
-            dbRaceDao.insertAll(racesToInsert)
+
+            try {
+                dbRaceDao.insertAll(racesToInsert)
+            } catch (e: Exception) {
+                clearAllData()
+                mutableBackgroundErrors.emit(e)
+                return@launch
+            }
+
+            surplusCount += FETCH_SURPLUS_INCREMENT
+        }
+    }
+
+    override suspend fun clearAllData() {
+        withContext(Dispatchers.IO) {
+            nextToGoDatabase.clearAllTables()
         }
     }
 

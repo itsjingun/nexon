@@ -13,7 +13,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 internal object NextToGoSingletonModule {
-
     @Provides
     @Singleton
     fun provideNextToGoDatabase(@ApplicationContext context: Context): NextToGoDatabase {

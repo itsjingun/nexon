@@ -3,6 +3,10 @@ package com.entaingroup.nexon.nexttogo.domain
 import kotlinx.coroutines.flow.Flow
 
 internal interface NextToGoRacesInteractor {
+    /**
+     * A [Flow] that emits any errors encountered during background tasks.
+     */
+    val backgroundErrors: Flow<Exception>
 
     /**
      * A [Flow] that emits a list of upcoming [Race]s in chronological order.
@@ -15,4 +19,6 @@ internal interface NextToGoRacesInteractor {
         categories: Set<RacingCategory> = emptySet(),
         count: Int,
     ): Flow<List<Race>>
+
+    suspend fun clearAllData()
 }

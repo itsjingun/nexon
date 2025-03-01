@@ -11,17 +11,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.entaingroup.nexon.R
 import com.entaingroup.nexon.nexttogo.NextToGoRacesContract
-import com.entaingroup.nexon.nexttogo.domain.Race
 import com.entaingroup.nexon.nexttogo.domain.RacingCategory
 import kotlinx.coroutines.flow.Flow
 
@@ -29,17 +23,12 @@ import kotlinx.coroutines.flow.Flow
 internal fun NextToGoRacesScreen(
     viewState: NextToGoRacesContract.ViewState,
     onCategoryChipClick: (RacingCategory) -> Unit,
+    onTryAgainButtonClick: () -> Unit,
     ticker: Flow<Unit>,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
-        var races by remember { mutableStateOf<List<Race>>(emptyList()) }
-
-        LaunchedEffect(viewState.racesFlow) {
-            viewState.racesFlow.collect { races = it }
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -51,28 +40,32 @@ internal fun NextToGoRacesScreen(
                 style = MaterialTheme.typography.headlineLarge,
             )
 
-            CategoryFilterList(
-                categories = viewState.categories,
-                selectedCategories = viewState.selectedCategories,
-                onCategoryChipClick = onCategoryChipClick,
-            )
+            if (viewState.showError) {
+                ErrorState(onTryAgainButtonClick = onTryAgainButtonClick)
+            } else {
+                CategoryFilterList(
+                    categories = viewState.categories,
+                    selectedCategories = viewState.selectedCategories,
+                    onCategoryChipClick = onCategoryChipClick,
+                )
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                state = rememberLazyListState(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                (0 until NextToGoRacesContract.MAX_NUMBER_OF_RACES).forEach { i ->
-                    races.getOrNull(i)?.let { race ->
-                        item(key = race.id, contentType = "race") {
-                            RaceCard(
-                                race = race,
-                                ticker = ticker,
-                            )
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = rememberLazyListState(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    (0 until NextToGoRacesContract.MAX_NUMBER_OF_RACES).forEach { i ->
+                        viewState.races.getOrNull(i)?.let { race ->
+                            item(key = race.id, contentType = "race") {
+                                RaceCard(
+                                    race = race,
+                                    ticker = ticker,
+                                )
+                            }
+                        } ?: item(contentType = "loading") {
+                            LoadingCard()
                         }
-                    } ?: item(contentType = "loading") {
-                        LoadingCard()
                     }
                 }
             }

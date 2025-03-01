@@ -16,7 +16,6 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 @Module
 @InstallIn(ViewModelComponent::class)
 internal object NextToGoViewModelModule {
-
     @Provides
     @ViewModelScoped
     fun bindNextToGoRacesInteractor(
