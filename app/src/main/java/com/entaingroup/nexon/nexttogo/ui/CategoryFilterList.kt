@@ -15,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.entaingroup.nexon.R
 import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.ui.theme.NexonTheme
 
 @Composable
 internal fun CategoryFilterList(
@@ -62,3 +64,36 @@ private fun RacingCategory.getReadableName(): Int {
         RacingCategory.UNKNOWN -> R.string.racing_category_unknown
     }
 }
+
+// region Previews
+
+private val allCategories = RacingCategory
+    .entries
+    .filterNot { it == RacingCategory.UNKNOWN }
+    .toSet()
+
+@Preview(showBackground = true)
+@Composable
+internal fun Preview_CategoryFilterList() {
+    NexonTheme {
+        CategoryFilterList(
+            categories = allCategories,
+            selectedCategories = emptySet(),
+            onCategoryChipClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+internal fun Preview_CategoryFilterList_AllSelected() {
+    NexonTheme {
+        CategoryFilterList(
+            categories = allCategories,
+            selectedCategories = allCategories,
+            onCategoryChipClick = {},
+        )
+    }
+}
+
+// endregion
