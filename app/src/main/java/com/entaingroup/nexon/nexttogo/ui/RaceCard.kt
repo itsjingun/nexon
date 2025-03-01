@@ -69,7 +69,7 @@ internal fun RaceCard(
             Column {
                 Text(
                     text = buildAnnotatedString {
-                        append(race.name.trim())
+                        append(race.meetingName.trim())
                         append(" ")
                         withStyle(
                             style = SpanStyle(
@@ -77,7 +77,7 @@ internal fun RaceCard(
                                 fontWeight = FontWeight.Normal,
                             )
                         ) {
-                            append("R${race.number}")
+                            append("R${race.raceNumber}")
                         }
                     },
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
@@ -231,22 +231,22 @@ internal class RaceProvider :
     companion object {
         val STANDARD_GREYHOUND = Race(
             id = "standard",
-            name = "A standard race",
-            number = 16,
+            meetingName = "Greyhoundwick",
+            raceNumber = 16,
             category = RacingCategory.GREYHOUND,
             startTime = Instant.ofEpochSecond(1740783000L),
         )
         val STANDARD_HARNESS = Race(
             id = "standard",
-            name = "A standard race",
-            number = 16,
+            meetingName = "Harnessville",
+            raceNumber = 16,
             category = RacingCategory.HARNESS,
             startTime = Instant.ofEpochSecond(1740783000L),
         )
         val STANDARD_HORSE = Race(
             id = "standard",
-            name = "A standard race",
-            number = 16,
+            meetingName = "Horsewich",
+            raceNumber = 16,
             category = RacingCategory.HORSE,
             startTime = Instant.ofEpochSecond(1740783000L),
         )

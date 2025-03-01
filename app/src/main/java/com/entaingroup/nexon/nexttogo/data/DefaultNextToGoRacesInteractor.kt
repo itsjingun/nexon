@@ -148,8 +148,8 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                 val raceSummary = entry.value
                 DbRace(
                     id = raceSummary.raceId,
-                    name = raceSummary.raceName,
-                    number = raceSummary.raceNumber,
+                    meetingName = raceSummary.meetingName,
+                    raceNumber = raceSummary.raceNumber,
                     categoryId = raceSummary.categoryId,
                     startTime = raceSummary.advertisedStart.seconds,
                 )

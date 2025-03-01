@@ -12,7 +12,7 @@ internal interface DbRaceDao {
         """
         SELECT * FROM race
         WHERE start_time >= :minStartTime
-        ORDER BY start_time, name
+        ORDER BY start_time, meeting_name
         LIMIT :count
         """
     )
@@ -22,7 +22,7 @@ internal interface DbRaceDao {
         """
         SELECT * FROM race
         WHERE category_id IN (:categoryIds) AND start_time >= :minStartTime
-        ORDER BY start_time, name
+        ORDER BY start_time, meeting_name
         LIMIT :count
         """
     )

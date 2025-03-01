@@ -24,8 +24,8 @@ import java.time.Instant
 
 private val DummyRace = Race(
     id = "",
-    name = "",
-    number = 0,
+    meetingName = "",
+    raceNumber = 0,
     category = RacingCategory.UNKNOWN,
     startTime = Instant.ofEpochSecond(0),
 )

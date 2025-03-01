@@ -14,16 +14,16 @@ import java.time.Instant
 )
 internal data class DbRace(
     @PrimaryKey val id: String,
-    val name: String,
-    val number: Int,
+    @ColumnInfo(name = "meeting_name") val meetingName: String,
+    @ColumnInfo(name = "race_number") val raceNumber: Int,
     @ColumnInfo(name = "category_id") val categoryId: String,
     @ColumnInfo(name = "start_time") val startTime: Long,
 )
 
 internal fun DbRace.toRace(): Race = Race(
     id = id,
-    name = name,
-    number = number,
+    meetingName = meetingName,
+    raceNumber = raceNumber,
     category = RacingCategory.fromId(categoryId),
     startTime = Instant.ofEpochSecond(startTime),
 )
