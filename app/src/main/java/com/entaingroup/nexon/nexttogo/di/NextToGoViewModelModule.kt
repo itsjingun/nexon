@@ -1,8 +1,8 @@
 package com.entaingroup.nexon.nexttogo.di
 
-import com.entaingroup.nexon.nexttogo.data.DefaultNextToGoRacesRepository
+import com.entaingroup.nexon.nexttogo.data.DefaultNextToGoRacesInteractor
 import com.entaingroup.nexon.nexttogo.data.api.NextToGoRacesApi
-import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesRepository
+import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,9 +19,9 @@ internal object NextToGoViewModelModule {
 
     @Provides
     @ViewModelScoped
-    fun bindNextToGoRacesRepository(
-        nextToGoRacesRepository: DefaultNextToGoRacesRepository,
-    ): NextToGoRacesRepository = nextToGoRacesRepository
+    fun bindNextToGoRacesInteractor(
+        nextToGoRacesInteractor: DefaultNextToGoRacesInteractor,
+    ): NextToGoRacesInteractor = nextToGoRacesInteractor
 
     @Provides
     @ViewModelScoped

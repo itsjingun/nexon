@@ -3,7 +3,7 @@ package com.entaingroup.nexon.nexttogo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.entaingroup.nexon.nexttogo.NextToGoRacesContract.Companion.MAX_NUMBER_OF_RACES
-import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesRepository
+import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
 import com.entaingroup.nexon.nexttogo.domain.RacingCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class NextToGoRacesViewModel @Inject constructor(
-    private val nextToGoRacesRepository: NextToGoRacesRepository,
+    private val nextToGoRacesInteractor: NextToGoRacesInteractor,
 ) : ViewModel() {
 
     private val mutableViewState = MutableStateFlow(NextToGoRacesContract.ViewState.INITIAL)
@@ -35,7 +35,7 @@ internal class NextToGoRacesViewModel @Inject constructor(
         val selectedCategories = mutableViewState.value.selectedCategories
         mutableViewState.update {
             it.copy(
-                racesFlow = nextToGoRacesRepository.getNextRaces(
+                racesFlow = nextToGoRacesInteractor.getNextRaces(
                     categories = selectedCategories,
                     count = MAX_NUMBER_OF_RACES,
                 ),
@@ -61,7 +61,7 @@ internal class NextToGoRacesViewModel @Inject constructor(
 
             it.copy(
                 selectedCategories = updatedCategories,
-                racesFlow = nextToGoRacesRepository.getNextRaces(
+                racesFlow = nextToGoRacesInteractor.getNextRaces(
                     categories = updatedCategories,
                     count = MAX_NUMBER_OF_RACES,
                 ),

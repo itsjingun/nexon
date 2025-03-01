@@ -2,7 +2,7 @@ package com.entaingroup.nexon.nexttogo.domain
 
 import kotlinx.coroutines.flow.Flow
 
-internal interface NextToGoRacesRepository {
+internal interface NextToGoRacesInteractor {
 
     /**
      * A [Flow] that emits a list of upcoming [Race]s in chronological order.

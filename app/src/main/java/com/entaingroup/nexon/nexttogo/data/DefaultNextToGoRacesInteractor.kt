@@ -4,7 +4,7 @@ import com.entaingroup.nexon.nexttogo.data.api.NextToGoRacesApi
 import com.entaingroup.nexon.nexttogo.data.persisted.DbRace
 import com.entaingroup.nexon.nexttogo.data.persisted.NextToGoDatabase
 import com.entaingroup.nexon.nexttogo.data.persisted.toRace
-import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesRepository
+import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
 import com.entaingroup.nexon.nexttogo.domain.Race
 import com.entaingroup.nexon.nexttogo.domain.RacingCategory
 import com.entaingroup.nexon.utils.DateUtils
@@ -24,10 +24,10 @@ import timber.log.Timber
 import java.time.Instant
 import javax.inject.Inject
 
-internal class DefaultNextToGoRacesRepository @Inject constructor(
+internal class DefaultNextToGoRacesInteractor @Inject constructor(
     private val nextToGoRacesApi: NextToGoRacesApi,
     nextToGoDatabase: NextToGoDatabase,
-) : NextToGoRacesRepository {
+) : NextToGoRacesInteractor {
 
     private val dbRaceDao = nextToGoDatabase.dbRaceDao()
 
