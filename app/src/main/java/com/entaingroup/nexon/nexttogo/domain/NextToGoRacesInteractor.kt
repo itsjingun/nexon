@@ -19,6 +19,4 @@ internal interface NextToGoRacesInteractor {
         categories: Set<RacingCategory> = emptySet(),
         count: Int,
     ): Flow<List<Race>>
-
-    suspend fun clearAllData()
 }

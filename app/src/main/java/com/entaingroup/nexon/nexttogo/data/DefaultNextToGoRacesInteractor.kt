@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.Instant
 import javax.inject.Inject
@@ -49,9 +48,9 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
     private var isFetching = false
 
     /**
-     * A surplus added to the count when fetching from the server.
+     * A multiplier for the count when fetching from the server.
      */
-    private var surplusCount = DEFAULT_FETCH_SURPLUS
+    private var fetchCountMultiplier = DEFAULT_FETCH_MULTIPLIER
 
     /**
      * A [Flow] that emits the minimum start time, used in the Room database query.
@@ -133,11 +132,11 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                     // in the local database.
                     if (races.size < countWithBuffer) {
                         if (!isFetching) {
-                            fetchNextRaces(count + surplusCount)
+                            fetchNextRaces(count * fetchCountMultiplier)
                         }
                     } else {
-                        // Revert to the default surplus once there is sufficient data.
-                        surplusCount = DEFAULT_FETCH_SURPLUS
+                        // Revert to the default multiplier once there is sufficient data.
+                        fetchCountMultiplier = DEFAULT_FETCH_MULTIPLIER
                     }
                 }
                     .map {
@@ -170,6 +169,7 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                 isFetching = false
             }
 
+            val minStartTime = Instant.now().epochSecond - EXPIRY_THRESHOLD
             val racesToInsert = apiResponse.data.raceSummaries.map { entry ->
                 val raceSummary = entry.value
                 DbRace(
@@ -179,30 +179,27 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                     categoryId = raceSummary.categoryId,
                     startTime = raceSummary.advertisedStart.seconds,
                 )
+            }.filter {
+                // Only insert races that are not stale.
+                it.startTime >= minStartTime
             }
 
             try {
                 dbRaceDao.insertAll(racesToInsert)
+                dbRaceDao.deleteRacesWithStartTimeLowerThan(minStartTime)
             } catch (e: Exception) {
-                clearAllData()
+                nextToGoDatabase.clearAllTables()
                 mutableBackgroundErrors.emit(e)
                 return@launch
             }
 
-            surplusCount += FETCH_SURPLUS_INCREMENT
-        }
-    }
-
-    override suspend fun clearAllData() {
-        withContext(Dispatchers.IO) {
-            nextToGoDatabase.clearAllTables()
+            fetchCountMultiplier += DEFAULT_FETCH_MULTIPLIER
         }
     }
 
     companion object {
         private const val EXPIRY_THRESHOLD = 59L // 59 seconds
         private const val COUNT_BUFFER = 2
-        private const val DEFAULT_FETCH_SURPLUS = 5
-        private const val FETCH_SURPLUS_INCREMENT = 5
+        private const val DEFAULT_FETCH_MULTIPLIER = 2
     }
 }

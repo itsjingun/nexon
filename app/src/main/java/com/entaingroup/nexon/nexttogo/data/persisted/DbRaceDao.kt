@@ -34,4 +34,12 @@ internal interface DbRaceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(races: Collection<DbRace>)
+
+    @Query(
+        """
+        DELETE FROM race
+        WHERE start_time < :time
+        """
+    )
+    suspend fun deleteRacesWithStartTimeLowerThan(time: Long)
 }
