@@ -2,11 +2,10 @@ package com.entaingroup.nexon.nexttogo.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -59,32 +58,13 @@ internal fun RaceCard(
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Icon
             CategoryIcon(category = race.category)
-
             Spacer(modifier = Modifier.width(16.dp))
-
-            // Text area
-            Column {
-                Text(
-                    text = buildAnnotatedString {
-                        append(race.meetingName.trim())
-                        append(" ")
-                        withStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Normal,
-                            )
-                        ) {
-                            append("R${race.raceNumber}")
-                        }
-                    },
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Countdown(startTime = race.startTime, ticker = ticker)
-            }
+            Title(meetingName = race.meetingName, raceNumber = race.raceNumber)
+            Spacer(modifier = Modifier.width(16.dp))
+            Countdown(startTime = race.startTime, ticker = ticker)
         }
     }
 }
@@ -118,7 +98,7 @@ private fun CategoryIcon(category: RacingCategory) {
 
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(40.dp)
             .clip(CircleShape)
             .background(color = MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center,
@@ -126,10 +106,33 @@ private fun CategoryIcon(category: RacingCategory) {
         Icon(
             painter = painterResource(drawableId),
             contentDescription = stringResource(contentDescriptionId),
-            modifier = Modifier.size(32.dp),
+            modifier = Modifier.size(28.dp),
             tint = MaterialTheme.colorScheme.onSurface,
         )
     }
+}
+
+@Composable
+private fun RowScope.Title(
+    meetingName: String,
+    raceNumber: Int,
+) {
+    Text(
+        text = buildAnnotatedString {
+            append(meetingName.trim())
+            append(" ")
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Normal,
+                )
+            ) {
+                append("R${raceNumber}")
+            }
+        },
+        modifier = Modifier.weight(1.0f),
+        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+    )
 }
 
 @Composable
@@ -151,6 +154,9 @@ private fun Countdown(
     )
     val urgentBackgroundColor by rememberUpdatedState(
         MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
+    )
+    val textStyle by rememberUpdatedState(
+        MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
     )
 
     // Update remaining time every second.
@@ -174,7 +180,7 @@ private fun Countdown(
         color = if (isStartingSoon)
             MaterialTheme.colorScheme.error else
             MaterialTheme.colorScheme.tertiary,
-        style = MaterialTheme.typography.labelMedium,
+        style = textStyle,
     )
 }
 
@@ -226,27 +232,43 @@ internal class RaceProvider :
         STANDARD_GREYHOUND,
         STANDARD_HARNESS,
         STANDARD_HORSE,
+        STANDARD_UNKNOWN,
+        LONG_NAME,
     )
 
     companion object {
         val STANDARD_GREYHOUND = Race(
-            id = "standard",
+            id = "greyhound",
             meetingName = "Greyhoundwick",
             raceNumber = 16,
             category = RacingCategory.GREYHOUND,
             startTime = Instant.ofEpochSecond(1740783000L),
         )
         val STANDARD_HARNESS = Race(
-            id = "standard",
+            id = "harness",
             meetingName = "Harnessville",
             raceNumber = 16,
             category = RacingCategory.HARNESS,
             startTime = Instant.ofEpochSecond(1740783000L),
         )
         val STANDARD_HORSE = Race(
-            id = "standard",
+            id = "horse",
             meetingName = "Horsewich",
             raceNumber = 16,
+            category = RacingCategory.HORSE,
+            startTime = Instant.ofEpochSecond(1740783000L),
+        )
+        val STANDARD_UNKNOWN = Race(
+            id = "unknown",
+            meetingName = "Unknown",
+            raceNumber = 16,
+            category = RacingCategory.UNKNOWN,
+            startTime = Instant.ofEpochSecond(1740783000L),
+        )
+        val LONG_NAME = Race(
+            id = "longName",
+            meetingName = "Eagle Farm of the Shire of Middle Earth",
+            raceNumber = 420,
             category = RacingCategory.HORSE,
             startTime = Instant.ofEpochSecond(1740783000L),
         )
