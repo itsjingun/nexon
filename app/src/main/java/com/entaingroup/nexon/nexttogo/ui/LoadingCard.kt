@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import com.entaingroup.nexon.nexttogo.domain.Race
 import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import com.entaingroup.nexon.ui.theme.NexonTheme
 import kotlinx.coroutines.flow.emptyFlow
 import java.time.Instant
@@ -29,6 +30,10 @@ private val DummyRace = Race(
     category = RacingCategory.UNKNOWN,
     startTime = Instant.ofEpochSecond(0),
 )
+
+private val DummyTimeProvider = object : TimeProvider {
+    override fun now() = Instant.ofEpochSecond(0)
+}
 
 @Composable
 internal fun LoadingCard() {
@@ -53,6 +58,7 @@ internal fun LoadingCard() {
         // Use an invisible Race card to provide approximate sizing.
         RaceCard(
             race = DummyRace,
+            timeProvider = DummyTimeProvider,
             ticker = emptyFlow(),
             modifier = Modifier.alpha(0f),
         )

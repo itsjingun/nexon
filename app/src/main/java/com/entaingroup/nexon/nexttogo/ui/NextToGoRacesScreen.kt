@@ -17,11 +17,13 @@ import androidx.compose.ui.unit.dp
 import com.entaingroup.nexon.R
 import com.entaingroup.nexon.nexttogo.NextToGoRacesContract
 import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun NextToGoRacesScreen(
     viewState: NextToGoRacesContract.ViewState,
+    timeProvider: TimeProvider,
     onCategoryChipClick: (RacingCategory) -> Unit,
     onTryAgainButtonClick: () -> Unit,
     ticker: Flow<Unit>,
@@ -60,6 +62,7 @@ internal fun NextToGoRacesScreen(
                             item(key = race.id, contentType = "race") {
                                 RaceCard(
                                     race = race,
+                                    timeProvider = timeProvider,
                                     ticker = ticker,
                                 )
                             }

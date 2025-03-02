@@ -25,6 +25,7 @@ class NextToGoRacesActivity : ComponentActivity() {
             NexonTheme {
                 NextToGoRacesScreen(
                     viewState = viewState,
+                    timeProvider = viewModel.timeProvider,
                     onCategoryChipClick = viewModel::toggleRacingCategory,
                     onTryAgainButtonClick = viewModel::onTryAgainButtonClick,
                     ticker = viewModel.ticker,

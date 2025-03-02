@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.entaingroup.nexon.nexttogo.NextToGoRacesContract.Companion.MAX_NUMBER_OF_RACES
 import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
 import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 internal class NextToGoRacesViewModel @Inject constructor(
     private val nextToGoRacesInteractor: NextToGoRacesInteractor,
+    val timeProvider: TimeProvider,
 ) : ViewModel() {
     private val mutableViewState = MutableStateFlow(NextToGoRacesContract.ViewState.INITIAL)
     val viewState: StateFlow<NextToGoRacesContract.ViewState> = mutableViewState.asStateFlow()

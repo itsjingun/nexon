@@ -7,6 +7,7 @@ import com.entaingroup.nexon.nexttogo.data.persisted.toRace
 import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
 import com.entaingroup.nexon.nexttogo.domain.Race
 import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import com.entaingroup.nexon.utils.DateUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +31,7 @@ import javax.inject.Inject
 internal class DefaultNextToGoRacesInteractor @Inject constructor(
     private val nextToGoRacesApi: NextToGoRacesApi,
     private val nextToGoDatabase: NextToGoDatabase,
+    private val timeProvider: TimeProvider,
 ) : NextToGoRacesInteractor {
     private val mutableNextRaces = MutableSharedFlow<List<Race>>()
     override val nextRaces: Flow<List<Race>> = mutableNextRaces.asSharedFlow()
@@ -64,7 +66,7 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
      * in [startRaceUpdates].
      */
     private val minStartTimeFlow = MutableStateFlow<Instant>(
-        Instant.now().minusSeconds(EXPIRY_THRESHOLD)
+        timeProvider.now().minusSeconds(EXPIRY_THRESHOLD)
     )
 
     /**
@@ -96,8 +98,9 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                 // if an update is needed.
                 nextUpdateTime?.let { updateTime ->
                     if (!isFetching) {
-                        if (Instant.now() >= updateTime) {
-                            minStartTimeFlow.value = Instant.now().minusSeconds(EXPIRY_THRESHOLD)
+                        if (timeProvider.now() >= updateTime) {
+                            minStartTimeFlow.value =
+                                timeProvider.now().minusSeconds(EXPIRY_THRESHOLD)
                         }
                     }
                 }
@@ -159,7 +162,7 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
     private fun updateNextUpdateTime(races: List<DbRace>) {
         nextUpdateTime = races.firstOrNull()?.let {
             Instant.ofEpochSecond(it.startTime + EXPIRY_THRESHOLD)
-        } ?: Instant.now()
+        } ?: timeProvider.now()
         nextUpdateTime?.let {
             Timber.d("The next time to update is at: ${DateUtils.format(it)}")
         }
@@ -169,7 +172,7 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
         // Fetch more data if there are an insufficient number of items
         // in the local database.
         if (races.size < minimumSize) {
-            nextUpdateTime = Instant.now()
+            nextUpdateTime = timeProvider.now()
 
             if (!isFetching) {
                 // Multiply the fetch count, and coerce to a maximum value.
@@ -214,7 +217,7 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                 return@launch
             }
 
-            val minStartTime = Instant.now().epochSecond - EXPIRY_THRESHOLD
+            val minStartTime = timeProvider.now().epochSecond - EXPIRY_THRESHOLD
             val racesToInsert = apiResponse.data.raceSummaries.map { entry ->
                 val raceSummary = entry.value
                 DbRace(

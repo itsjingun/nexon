@@ -1,8 +1,10 @@
 package com.entaingroup.nexon.nexttogo.di
 
 import com.entaingroup.nexon.nexttogo.data.DefaultNextToGoRacesInteractor
+import com.entaingroup.nexon.nexttogo.data.DefaultTimeProvider
 import com.entaingroup.nexon.nexttogo.data.api.NextToGoRacesApi
 import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
+import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,4 +38,8 @@ internal object NextToGoViewModelModule {
             .build()
             .create(NextToGoRacesApi::class.java)
     }
+
+    @Provides
+    @ViewModelScoped
+    fun provideTimeProvider(timeProvider: DefaultTimeProvider): TimeProvider = timeProvider
 }

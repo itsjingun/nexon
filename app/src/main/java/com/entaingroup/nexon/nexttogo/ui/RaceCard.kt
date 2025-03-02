@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.entaingroup.nexon.R
 import com.entaingroup.nexon.nexttogo.domain.Race
 import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import com.entaingroup.nexon.ui.theme.NexonTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -48,6 +49,7 @@ import kotlin.math.abs
 @Composable
 internal fun RaceCard(
     race: Race,
+    timeProvider: TimeProvider,
     ticker: Flow<Unit>,
     modifier: Modifier = Modifier,
 ) {
@@ -64,7 +66,7 @@ internal fun RaceCard(
             Spacer(modifier = Modifier.width(16.dp))
             Title(meetingName = race.meetingName, raceNumber = race.raceNumber)
             Spacer(modifier = Modifier.width(16.dp))
-            Countdown(startTime = race.startTime, ticker = ticker)
+            Countdown(startTime = race.startTime, timeProvider = timeProvider, ticker = ticker)
         }
     }
 }
@@ -138,14 +140,15 @@ private fun RowScope.Title(
 @Composable
 private fun Countdown(
     startTime: Instant,
+    timeProvider: TimeProvider,
     ticker: Flow<Unit>,
 ) {
     fun lessThanFiveMinutesRemaining(): Boolean {
-        return Duration.between(Instant.now(), startTime).seconds < 300
+        return Duration.between(timeProvider.now(), startTime).seconds < 300
     }
 
     var timeRemaining by remember {
-        mutableStateOf(getTimeRemainingUntil(startTime))
+        mutableStateOf(getTimeRemainingUntil(timeProvider.now(), startTime))
     }
     var isStartingSoon by remember { mutableStateOf(lessThanFiveMinutesRemaining()) }
 
@@ -162,7 +165,7 @@ private fun Countdown(
     // Update remaining time every second.
     LaunchedEffect(Unit) {
         ticker.collect {
-            timeRemaining = getTimeRemainingUntil(startTime)
+            timeRemaining = getTimeRemainingUntil(timeProvider.now(), startTime)
             isStartingSoon = lessThanFiveMinutesRemaining()
         }
     }
@@ -190,8 +193,7 @@ private fun Countdown(
  * - 24m 48s
  * - 0s
  */
-internal fun getTimeRemainingUntil(then: Instant): String {
-    val now = Instant.now()
+internal fun getTimeRemainingUntil(now: Instant, then: Instant): String {
     val duration = Duration.between(now, then)
     val isNegative = duration.seconds < 0
     val diff = abs(duration.seconds)
@@ -209,7 +211,6 @@ internal fun getTimeRemainingUntil(then: Instant): String {
     return if (isNegative) "-$result" else result
 }
 
-
 // region Previews
 
 @Preview
@@ -221,6 +222,9 @@ internal fun Preview_RaceCard(
     NexonTheme {
         RaceCard(
             race = race,
+            timeProvider = object : TimeProvider {
+                override fun now() = Instant.ofEpochSecond(0)
+            },
             ticker = emptyFlow(),
         )
     }
@@ -229,48 +233,64 @@ internal fun Preview_RaceCard(
 internal class RaceProvider :
     PreviewParameterProvider<Race> {
     override val values = sequenceOf(
-        STANDARD_GREYHOUND,
-        STANDARD_HARNESS,
-        STANDARD_HORSE,
-        STANDARD_UNKNOWN,
+        GREYHOUND_STARTING_SOON,
+        GREYHOUND_JUST_STARTED,
+        GREYHOUND_ALREADY_STARTED,
+        HARNESS_FIVE_MINUTES_LEFT,
+        HORSE_MINUTES_AND_SECONDS,
+        UNKNOWN_HOURS_AND_MINUTES_AND_SECONDS,
         LONG_NAME,
     )
 
     companion object {
-        val STANDARD_GREYHOUND = Race(
+        val GREYHOUND_STARTING_SOON = Race(
             id = "greyhound",
             meetingName = "Greyhoundwick",
             raceNumber = 16,
             category = RacingCategory.GREYHOUND,
-            startTime = Instant.ofEpochSecond(1740783000L),
+            startTime = Instant.ofEpochSecond(299),
         )
-        val STANDARD_HARNESS = Race(
+        val GREYHOUND_JUST_STARTED = Race(
+            id = "greyhound",
+            meetingName = "Greyhoundwick",
+            raceNumber = 16,
+            category = RacingCategory.GREYHOUND,
+            startTime = Instant.ofEpochSecond(0),
+        )
+        val GREYHOUND_ALREADY_STARTED = Race(
+            id = "greyhound",
+            meetingName = "Greyhoundwick",
+            raceNumber = 16,
+            category = RacingCategory.GREYHOUND,
+            startTime = Instant.ofEpochSecond(-42),
+        )
+        val HARNESS_FIVE_MINUTES_LEFT = Race(
             id = "harness",
             meetingName = "Harnessville",
             raceNumber = 16,
             category = RacingCategory.HARNESS,
-            startTime = Instant.ofEpochSecond(1740783000L),
+            startTime = Instant.ofEpochSecond(300),
         )
-        val STANDARD_HORSE = Race(
+        val HORSE_MINUTES_AND_SECONDS = Race(
             id = "horse",
             meetingName = "Horsewich",
             raceNumber = 16,
             category = RacingCategory.HORSE,
-            startTime = Instant.ofEpochSecond(1740783000L),
+            startTime = Instant.ofEpochSecond(642),
         )
-        val STANDARD_UNKNOWN = Race(
+        val UNKNOWN_HOURS_AND_MINUTES_AND_SECONDS = Race(
             id = "unknown",
             meetingName = "Unknown",
             raceNumber = 16,
             category = RacingCategory.UNKNOWN,
-            startTime = Instant.ofEpochSecond(1740783000L),
+            startTime = Instant.ofEpochSecond(3852),
         )
         val LONG_NAME = Race(
             id = "longName",
             meetingName = "Eagle Farm of the Shire of Middle Earth",
             raceNumber = 420,
             category = RacingCategory.HORSE,
-            startTime = Instant.ofEpochSecond(1740783000L),
+            startTime = Instant.ofEpochSecond(425),
         )
     }
 }
