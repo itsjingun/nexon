@@ -27,11 +27,12 @@ internal object NextToGoViewModelModule {
     @Provides
     @ViewModelScoped
     fun provideNextToGoRacesService(): NextToGoRacesApi {
+        val json = Json { ignoreUnknownKeys = true }
         return Retrofit.Builder()
             .baseUrl("https://api.neds.com.au")
             .addConverterFactory(
                 // Use kotlinx.serialization.
-                Json.asConverterFactory(
+                json.asConverterFactory(
                     "application/json; charset=UTF8".toMediaType(),
                 ),
             )
