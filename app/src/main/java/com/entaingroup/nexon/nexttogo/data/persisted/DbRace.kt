@@ -27,3 +27,5 @@ internal fun DbRace.toRace(): Race = Race(
     category = RacingCategory.fromId(categoryId),
     startTime = Instant.ofEpochSecond(startTime),
 )
+
+internal fun List<DbRace>.toRaces(): List<Race> = map { it.toRace() }

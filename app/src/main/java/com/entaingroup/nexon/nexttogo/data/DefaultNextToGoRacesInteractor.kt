@@ -1,6 +1,8 @@
 package com.entaingroup.nexon.nexttogo.data
 
+import com.entaingroup.nexon.dispatchers.DispatcherProvider
 import com.entaingroup.nexon.nexttogo.data.api.NextToGoRacesApi
+import com.entaingroup.nexon.nexttogo.data.mapping.toDbRaces
 import com.entaingroup.nexon.nexttogo.data.persisted.DbRace
 import com.entaingroup.nexon.nexttogo.data.persisted.NextToGoDatabase
 import com.entaingroup.nexon.nexttogo.data.persisted.toRace
@@ -10,7 +12,6 @@ import com.entaingroup.nexon.nexttogo.domain.RacingCategory
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import com.entaingroup.nexon.utils.DateUtils
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -32,6 +33,7 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
     private val nextToGoRacesApi: NextToGoRacesApi,
     private val nextToGoDatabase: NextToGoDatabase,
     private val timeProvider: TimeProvider,
+    private val dispatcher: DispatcherProvider,
 ) : NextToGoRacesInteractor {
     private val mutableNextRaces = MutableSharedFlow<List<Race>>()
     override val nextRaces: Flow<List<Race>> = mutableNextRaces.asSharedFlow()
@@ -72,28 +74,27 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
     /**
      * A ticker that runs every second to constantly check whether data needs to be updated.
      */
-    private val mutableTicker = MutableSharedFlow<Unit>()
+    private var tickerJob: Job? = null
 
     /**
      * A [CoroutineScope] for running background operations.
      *
-     * Note: [Dispatchers.Main] is set as the context to ensure that properties are only changed
+     * Note: The main dispatcher is set as the context to ensure that properties are only changed
      * on the main thread, just for thread safety.
      */
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val scope = CoroutineScope(SupervisorJob() + dispatcher.main())
 
     /**
      * The [Job] used for emitting data into [nextRaces].
      */
     private var racesJob: Job? = null
 
-    init {
-        startTicker()
-    }
-
     private fun startTicker() {
-        scope.launch {
+        tickerJob?.cancel()
+        tickerJob = scope.launch {
             while (true) {
+                delay(1000) // Run every second
+
                 // Attempt to trigger a database emission (and possibly fetch more data)
                 // if an update is needed.
                 nextUpdateTime?.let { updateTime ->
@@ -104,15 +105,18 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                         }
                     }
                 }
-
-                mutableTicker.emit(Unit)
-                delay(1000) // Run every second
             }
         }
     }
 
+    private fun stopTicker() {
+        tickerJob?.cancel()
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun startRaceUpdates(count: Int, categories: Set<RacingCategory>) {
+        startTicker()
+
         nextUpdateTime = null
         fetchCountMultiplier = INITIAL_FETCH_MULTIPLIER
 
@@ -161,7 +165,7 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
 
     private fun updateNextUpdateTime(races: List<DbRace>) {
         nextUpdateTime = races.firstOrNull()?.let {
-            Instant.ofEpochSecond(it.startTime + EXPIRY_THRESHOLD)
+            Instant.ofEpochSecond(it.startTime + EXPIRY_THRESHOLD + 1)
         } ?: timeProvider.now()
         nextUpdateTime?.let {
             Timber.d("The next time to update is at: ${DateUtils.format(it)}")
@@ -210,23 +214,16 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
             } catch (e: Exception) {
                 // Note: Naturally we should try to handle specific exceptions separately
                 // in real world production code.
-
+                Timber.e("Error while fetching: $e", e)
                 isFetching = false
                 mutableBackgroundErrors.emit(e)
                 return@launch
             }
 
+            // TODO: Check error inside API response (e.g. status) if needed.
+
             val minStartTime = timeProvider.now().epochSecond - EXPIRY_THRESHOLD
-            val racesToInsert = apiResponse.data.raceSummaries.map { entry ->
-                val raceSummary = entry.value
-                DbRace(
-                    id = raceSummary.raceId,
-                    meetingName = raceSummary.meetingName,
-                    raceNumber = raceSummary.raceNumber,
-                    categoryId = raceSummary.categoryId,
-                    startTime = raceSummary.advertisedStart.seconds,
-                )
-            }.filter {
+            val racesToInsert = apiResponse.toDbRaces().filter {
                 // Only insert races that are not stale.
                 it.startTime >= minStartTime
             }
@@ -235,8 +232,10 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                 dbRaceDao.insertAll(racesToInsert)
                 dbRaceDao.deleteRacesWithStartTimeLowerThan(minStartTime)
             } catch (e: Exception) {
+                Timber.e("Error while updating database: $e", e)
+
                 // Clear database just to be safe.
-                withContext(Dispatchers.IO) {
+                withContext(dispatcher.io()) {
                     nextToGoDatabase.clearAllTables()
                 }
 
@@ -250,6 +249,7 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
     }
 
     override fun stopRaceUpdates() {
+        stopTicker()
         racesJob?.cancel()
         nextUpdateTime = null
     }
