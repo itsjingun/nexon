@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.dagger.hilt.android)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -27,7 +28,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -43,6 +44,10 @@ android {
     }
     room {
         schemaDirectory("$projectDir/schemas")
+    }
+    ktlint {
+        android.set(true)
+        ignoreFailures.set(false)
     }
 }
 

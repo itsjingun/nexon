@@ -14,7 +14,7 @@ internal interface DbRaceDao {
         WHERE start_time >= :minStartTime
         ORDER BY start_time, meeting_name
         LIMIT :count
-        """
+        """,
     )
     fun getNextRaces(count: Int, minStartTime: Long): Flow<List<DbRace>>
 
@@ -24,7 +24,7 @@ internal interface DbRaceDao {
         WHERE category_id IN (:categoryIds) AND start_time >= :minStartTime
         ORDER BY start_time, meeting_name
         LIMIT :count
-        """
+        """,
     )
     fun getNextRacesByCategoryIds(
         categoryIds: Set<String>,
@@ -39,7 +39,7 @@ internal interface DbRaceDao {
         """
         DELETE FROM race
         WHERE start_time < :time
-        """
+        """,
     )
     suspend fun deleteRacesWithStartTimeLowerThan(time: Long)
 }

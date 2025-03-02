@@ -7,4 +7,5 @@ plugins {
     alias(libs.plugins.devtools.ksp) apply false
     alias(libs.plugins.dagger.hilt.android) apply false
     alias(libs.plugins.androidx.room) apply false
+    alias(libs.plugins.ktlint) apply false
 }

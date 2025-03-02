@@ -115,10 +115,7 @@ private fun CategoryIcon(category: RacingCategory) {
 }
 
 @Composable
-private fun RowScope.Title(
-    meetingName: String,
-    raceNumber: Int,
-) {
+private fun RowScope.Title(meetingName: String, raceNumber: Int) {
     Text(
         text = buildAnnotatedString {
             append(meetingName.trim())
@@ -127,9 +124,9 @@ private fun RowScope.Title(
                 style = SpanStyle(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Normal,
-                )
+                ),
             ) {
-                append("R${raceNumber}")
+                append("R$raceNumber")
             }
         },
         modifier = Modifier.weight(1.0f),
@@ -138,11 +135,7 @@ private fun RowScope.Title(
 }
 
 @Composable
-private fun Countdown(
-    startTime: Instant,
-    timeProvider: TimeProvider,
-    ticker: Flow<Unit>,
-) {
+private fun Countdown(startTime: Instant, timeProvider: TimeProvider, ticker: Flow<Unit>) {
     fun lessThanFiveMinutesRemaining(): Boolean {
         return Duration.between(timeProvider.now(), startTime).seconds < 300
     }
@@ -153,13 +146,13 @@ private fun Countdown(
     var isStartingSoon by remember { mutableStateOf(lessThanFiveMinutesRemaining()) }
 
     val defaultBackgroundColor by rememberUpdatedState(
-        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
+        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f),
     )
     val urgentBackgroundColor by rememberUpdatedState(
-        MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
+        MaterialTheme.colorScheme.error.copy(alpha = 0.2f),
     )
     val textStyle by rememberUpdatedState(
-        MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+        MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
     )
 
     // Update remaining time every second.
@@ -174,15 +167,15 @@ private fun Countdown(
         text = timeRemaining,
         modifier = Modifier
             .background(
-                color = if (isStartingSoon)
-                    urgentBackgroundColor else
-                    defaultBackgroundColor,
+                color = if (isStartingSoon) urgentBackgroundColor else defaultBackgroundColor,
                 shape = RoundedCornerShape(100),
             )
             .padding(horizontal = 12.dp, vertical = 4.dp),
-        color = if (isStartingSoon)
-            MaterialTheme.colorScheme.error else
-            MaterialTheme.colorScheme.tertiary,
+        color = if (isStartingSoon) {
+            MaterialTheme.colorScheme.error
+        } else {
+            MaterialTheme.colorScheme.tertiary
+        },
         style = textStyle,
     )
 }

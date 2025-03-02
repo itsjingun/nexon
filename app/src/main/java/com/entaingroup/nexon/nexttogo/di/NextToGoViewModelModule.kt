@@ -32,8 +32,8 @@ internal object NextToGoViewModelModule {
             .addConverterFactory(
                 // Use kotlinx.serialization.
                 Json.asConverterFactory(
-                    "application/json; charset=UTF8".toMediaType()
-                )
+                    "application/json; charset=UTF8".toMediaType(),
+                ),
             )
             .build()
             .create(NextToGoRacesApi::class.java)

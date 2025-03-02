@@ -66,7 +66,7 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
      * in [startRaceUpdates].
      */
     private val minStartTimeFlow = MutableStateFlow<Instant>(
-        timeProvider.now().minusSeconds(EXPIRY_THRESHOLD)
+        timeProvider.now().minusSeconds(EXPIRY_THRESHOLD),
     )
 
     /**
@@ -181,8 +181,7 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
 
                 // Delay subsequent fetches (i.e. only the initial fetch should
                 // have no delay).
-                val delay = if (fetchCountMultiplier > INITIAL_FETCH_MULTIPLIER)
-                    1000L else 0
+                val delay = if (fetchCountMultiplier > INITIAL_FETCH_MULTIPLIER) 1000L else 0
 
                 fetchNextRacesInBackground(count = fetchCount, afterDelay = delay)
 

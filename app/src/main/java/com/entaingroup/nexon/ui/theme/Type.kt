@@ -16,14 +16,14 @@ val bodyFontFamily = FontFamily(
     Font(
         googleFont = GoogleFont("Lato"),
         fontProvider = provider,
-    )
+    ),
 )
 
 val displayFontFamily = FontFamily(
     Font(
         googleFont = GoogleFont("Vollkorn"),
         fontProvider = provider,
-    )
+    ),
 )
 
 val baseline = Typography()

@@ -49,7 +49,7 @@ internal fun CategoryFilterList(
                     }
                 } else {
                     null
-                }
+                },
             )
         }
     }

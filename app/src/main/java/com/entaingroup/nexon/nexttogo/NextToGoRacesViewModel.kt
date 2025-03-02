@@ -89,7 +89,7 @@ internal class NextToGoRacesViewModel @Inject constructor(
 
         nextToGoRacesInteractor.startRaceUpdates(
             count = MAX_NUMBER_OF_RACES,
-            categories = updatedCategories
+            categories = updatedCategories,
         )
     }
 }
