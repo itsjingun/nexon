@@ -34,12 +34,15 @@ internal class NextToGoRacesViewModel @Inject constructor(
     private val mutableTicker = MutableSharedFlow<Unit>()
     val ticker: Flow<Unit> = mutableTicker.asSharedFlow()
 
-    init {
+    private var isInitialized = false
+
+    fun initialize() {
+        if (isInitialized) return
+        isInitialized = true
+
         nextToGoRacesInteractor.backgroundErrors
             .onEach { error -> handleError(error) }
             .launchIn(viewModelScope)
-
-        startRaceUpdates()
 
         viewModelScope.launch {
             nextToGoRacesInteractor.nextRaces.collect { races ->
@@ -53,6 +56,8 @@ internal class NextToGoRacesViewModel @Inject constructor(
                 delay(1000) // Run every second
             }
         }
+
+        startRaceUpdates()
     }
 
     private fun startRaceUpdates() {

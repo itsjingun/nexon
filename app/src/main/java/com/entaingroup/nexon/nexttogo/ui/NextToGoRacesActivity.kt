@@ -32,5 +32,7 @@ class NextToGoRacesActivity : ComponentActivity() {
                 )
             }
         }
+
+        viewModel.initialize()
     }
 }
