@@ -11,6 +11,7 @@ import com.entaingroup.nexon.utils.DateUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.Instant
 import javax.inject.Inject
@@ -29,6 +31,9 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
     private val nextToGoRacesApi: NextToGoRacesApi,
     private val nextToGoDatabase: NextToGoDatabase,
 ) : NextToGoRacesInteractor {
+    private val mutableNextRaces = MutableSharedFlow<List<Race>>()
+    override val nextRaces: Flow<List<Race>> = mutableNextRaces.asSharedFlow()
+
     private val mutableBackgroundErrors = MutableSharedFlow<Exception>()
     override val backgroundErrors = mutableBackgroundErrors.asSharedFlow()
 
@@ -50,12 +55,13 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
     /**
      * A multiplier for the count when fetching from the server.
      */
-    private var fetchCountMultiplier = DEFAULT_FETCH_MULTIPLIER
+    private var fetchCountMultiplier = INITIAL_FETCH_MULTIPLIER
 
     /**
      * A [Flow] that emits the minimum start time, used in the Room database query.
      *
-     * Note: Whenever this emits a value, it will also trigger an emission for [getNextRaces].
+     * Note: Whenever this emits a value, it will also trigger an emission for the flow used
+     * in [startRaceUpdates].
      */
     private val minStartTimeFlow = MutableStateFlow<Instant>(
         Instant.now().minusSeconds(EXPIRY_THRESHOLD)
@@ -67,9 +73,17 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
     private val mutableTicker = MutableSharedFlow<Unit>()
 
     /**
-     * A [CoroutineScope] intended to be used for fetching races from a server in the background.
+     * A [CoroutineScope] for running background operations.
+     *
+     * Note: [Dispatchers.Main] is set as the context to ensure that properties are only changed
+     * on the main thread, just for thread safety.
      */
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    /**
+     * The [Job] used for emitting data into [nextRaces].
+     */
+    private var racesJob: Job? = null
 
     init {
         startTicker()
@@ -78,12 +92,12 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
     private fun startTicker() {
         scope.launch {
             while (true) {
+                // Attempt to trigger a database emission (and possibly fetch more data)
+                // if an update is needed.
                 nextUpdateTime?.let { updateTime ->
                     if (!isFetching) {
-                        // Trigger the [getNextRaces] flow in order to possibly fetch more data.
                         if (Instant.now() >= updateTime) {
-                            minStartTimeFlow.value =
-                                Instant.now().minusSeconds(EXPIRY_THRESHOLD) // 1 minute
+                            minStartTimeFlow.value = Instant.now().minusSeconds(EXPIRY_THRESHOLD)
                         }
                     }
                 }
@@ -95,15 +109,18 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getNextRaces(categories: Set<RacingCategory>, count: Int): Flow<List<Race>> {
-        return minStartTimeFlow
-            .flatMapLatest { minStartTime ->
-                // Add a buffer to the count so that data can be fetched earlier than strictly
-                // necessary so that the UI can maintain the required number of items when
-                // the list is being updated.
-                val countWithBuffer = count + COUNT_BUFFER
+    override fun startRaceUpdates(count: Int, categories: Set<RacingCategory>) {
+        nextUpdateTime = null
+        fetchCountMultiplier = INITIAL_FETCH_MULTIPLIER
 
-                val flow = if (categories.isEmpty()) {
+        // Add a buffer to the count so that data can be fetched earlier than strictly
+        // necessary so that the UI can maintain the required number of items when
+        // the list is being updated.
+        val countWithBuffer = count + COUNT_BUFFER
+
+        val flow = minStartTimeFlow
+            .flatMapLatest { minStartTime ->
+                if (categories.isEmpty()) {
                     dbRaceDao.getNextRaces(
                         count = countWithBuffer,
                         minStartTime = minStartTime.epochSecond,
@@ -115,47 +132,76 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                         minStartTime = minStartTime.epochSecond,
                     )
                 }
-
-                flow.onEach { races ->
-                    Timber.d("Next races emitted: $races")
-
-                    nextUpdateTime = races.firstOrNull()?.let {
-                        Instant.ofEpochSecond(it.startTime + EXPIRY_THRESHOLD)
-                    }
-                    nextUpdateTime?.let {
-                        Timber.d(
-                            "The next time to update is at: ${DateUtils.format(it)}"
-                        )
-                    }
-
-                    // Fetch more data if there are an insufficient number an items
-                    // in the local database.
-                    if (races.size < countWithBuffer) {
-                        if (!isFetching) {
-                            fetchNextRaces(count * fetchCountMultiplier)
-                        }
-                    } else {
-                        // Revert to the default multiplier once there is sufficient data.
-                        fetchCountMultiplier = DEFAULT_FETCH_MULTIPLIER
-                    }
-                }
-                    .map {
-                        // Take only the required count.
-                        it.take(count).map { dbRace -> dbRace.toRace() }
-                    }
             }
+            .onEach { dbRaces ->
+                Timber.d("Races emitted from database: $dbRaces")
+
+                updateNextUpdateTime(races = dbRaces)
+                fetchNextRacesIfNeeded(
+                    races = dbRaces,
+                    minimumSize = countWithBuffer,
+                    countForUi = count,
+                )
+            }
+            .map { dbRaces ->
+                // Take only the required count.
+                dbRaces.take(count).map { it.toRace() }
+            }
+
+        racesJob?.cancel()
+        racesJob = scope.launch {
+            flow.collect { races ->
+                mutableNextRaces.emit(races)
+            }
+        }
     }
 
-    private fun fetchNextRaces(count: Int) {
+    private fun updateNextUpdateTime(races: List<DbRace>) {
+        nextUpdateTime = races.firstOrNull()?.let {
+            Instant.ofEpochSecond(it.startTime + EXPIRY_THRESHOLD)
+        } ?: Instant.now()
+        nextUpdateTime?.let {
+            Timber.d("The next time to update is at: ${DateUtils.format(it)}")
+        }
+    }
+
+    private fun fetchNextRacesIfNeeded(races: List<DbRace>, minimumSize: Int, countForUi: Int) {
+        // Fetch more data if there are an insufficient number of items
+        // in the local database.
+        if (races.size < minimumSize) {
+            nextUpdateTime = Instant.now()
+
+            if (!isFetching) {
+                // Multiply the fetch count, and coerce to a maximum value.
+                val fetchCount = (countForUi * fetchCountMultiplier)
+                    .coerceAtMost(MAX_FETCH_COUNT)
+
+                // Delay subsequent fetches (i.e. only the initial fetch should
+                // have no delay).
+                val delay = if (fetchCountMultiplier > INITIAL_FETCH_MULTIPLIER)
+                    1000L else 0
+
+                fetchNextRacesInBackground(count = fetchCount, afterDelay = delay)
+
+                // Increase the fetch multiplier so that the next call fetches more data.
+                fetchCountMultiplier += INITIAL_FETCH_MULTIPLIER
+            }
+        } else {
+            // Revert to the initial multiplier once there is sufficient data.
+            fetchCountMultiplier = INITIAL_FETCH_MULTIPLIER
+        }
+    }
+
+    private fun fetchNextRacesInBackground(count: Int, afterDelay: Long = 0) {
         if (isFetching) return
 
         isFetching = true
-        nextUpdateTime = null
-
-        Timber.d("$count races being fetched...")
 
         scope.launch {
-            delay(1000)
+            // Add a delay to limit frequency of network requests.
+            delay(afterDelay)
+
+            Timber.d("$count races being fetched...")
 
             val apiResponse = try {
                 nextToGoRacesApi.getNextRaces(method = "nextraces", count = count)
@@ -163,10 +209,9 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                 // Note: Naturally we should try to handle specific exceptions separately
                 // in real world production code.
 
+                isFetching = false
                 mutableBackgroundErrors.emit(e)
                 return@launch
-            } finally {
-                isFetching = false
             }
 
             val minStartTime = Instant.now().epochSecond - EXPIRY_THRESHOLD
@@ -188,18 +233,29 @@ internal class DefaultNextToGoRacesInteractor @Inject constructor(
                 dbRaceDao.insertAll(racesToInsert)
                 dbRaceDao.deleteRacesWithStartTimeLowerThan(minStartTime)
             } catch (e: Exception) {
-                nextToGoDatabase.clearAllTables()
+                // Clear database just to be safe.
+                withContext(Dispatchers.IO) {
+                    nextToGoDatabase.clearAllTables()
+                }
+
+                isFetching = false
                 mutableBackgroundErrors.emit(e)
                 return@launch
             }
 
-            fetchCountMultiplier += DEFAULT_FETCH_MULTIPLIER
+            isFetching = false
         }
+    }
+
+    override fun stopRaceUpdates() {
+        racesJob?.cancel()
+        nextUpdateTime = null
     }
 
     companion object {
         private const val EXPIRY_THRESHOLD = 59L // 59 seconds
         private const val COUNT_BUFFER = 2
-        private const val DEFAULT_FETCH_MULTIPLIER = 2
+        private const val INITIAL_FETCH_MULTIPLIER = 2
+        private const val MAX_FETCH_COUNT = 100
     }
 }

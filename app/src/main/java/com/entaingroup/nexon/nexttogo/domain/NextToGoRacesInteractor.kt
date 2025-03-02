@@ -4,19 +4,22 @@ import kotlinx.coroutines.flow.Flow
 
 internal interface NextToGoRacesInteractor {
     /**
+     * A [Flow] that emits a list of upcoming [Race]s in chronological order.
+     */
+    val nextRaces: Flow<List<Race>>
+
+    /**
      * A [Flow] that emits any errors encountered during background tasks.
      */
     val backgroundErrors: Flow<Exception>
 
     /**
-     * A [Flow] that emits a list of upcoming [Race]s in chronological order.
-     *
-     * @param categories a set of categories to filter for.
-     * @param count maximum number of races to fetch.
-     * @return the list of races.
+     * Starts the automatic updates (for retrieving data for [nextRaces]).
      */
-    fun getNextRaces(
-        categories: Set<RacingCategory> = emptySet(),
-        count: Int,
-    ): Flow<List<Race>>
+    fun startRaceUpdates(count: Int, categories: Set<RacingCategory>)
+
+    /**
+     * Stops automatic updates.
+     */
+    fun stopRaceUpdates()
 }
