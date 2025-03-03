@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
@@ -73,6 +75,8 @@ internal fun RaceCard(
 
 @Composable
 private fun CategoryIcon(category: RacingCategory) {
+    val fontScale = LocalConfiguration.current.fontScale
+
     val drawableId: Int
     val contentDescriptionId: Int
 
@@ -100,7 +104,7 @@ private fun CategoryIcon(category: RacingCategory) {
 
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(40.dp * fontScale)
             .clip(CircleShape)
             .background(color = MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center,
@@ -108,7 +112,7 @@ private fun CategoryIcon(category: RacingCategory) {
         Icon(
             painter = painterResource(drawableId),
             contentDescription = stringResource(contentDescriptionId),
-            modifier = Modifier.size(28.dp),
+            modifier = Modifier.size(28.dp * fontScale),
             tint = MaterialTheme.colorScheme.onSurface,
         )
     }
@@ -163,6 +167,7 @@ private fun Countdown(startTime: Instant, timeProvider: TimeProvider, ticker: Fl
         }
     }
 
+    // Set to "urgent" colors with there are less than five minutes remaining.
     Text(
         text = timeRemaining,
         modifier = Modifier
@@ -205,6 +210,8 @@ internal fun getTimeRemainingUntil(now: Instant, then: Instant): String {
 }
 
 // region Previews
+
+@PreviewFontScale
 
 @Preview
 @Composable
