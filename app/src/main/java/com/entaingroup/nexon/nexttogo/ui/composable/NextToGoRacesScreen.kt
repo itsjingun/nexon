@@ -64,6 +64,7 @@ internal fun NextToGoRacesScreen(
                                     race = race,
                                     timeProvider = timeProvider,
                                     ticker = ticker,
+                                    modifier = Modifier.animateItem(),
                                 )
                             }
                         } ?: item(contentType = "loading") {
