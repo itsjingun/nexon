@@ -36,6 +36,9 @@ internal class NextToGoRacesViewModel @Inject constructor(
 
     private var isInitialized = false
 
+    /**
+     * Initializes this ViewModel to start listening to data updates.
+     */
     fun initialize() {
         if (isInitialized) return
         isInitialized = true
@@ -80,6 +83,9 @@ internal class NextToGoRacesViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Toggle on or off a racing category depending on its current selected state.
+     */
     fun toggleRacingCategory(category: RacingCategory) {
         val selectedCategories = mutableViewState.value.selectedCategories
         val updatedCategories = if (selectedCategories.contains(category)) {
