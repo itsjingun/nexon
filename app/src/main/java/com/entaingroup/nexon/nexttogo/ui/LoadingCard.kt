@@ -28,11 +28,11 @@ private val DummyRace = Race(
     meetingName = "",
     raceNumber = 0,
     category = RacingCategory.UNKNOWN,
-    startTime = Instant.ofEpochSecond(0),
+    startTime = Instant.EPOCH,
 )
 
 private val DummyTimeProvider = object : TimeProvider {
-    override fun now() = Instant.ofEpochSecond(0)
+    override fun now() = Instant.EPOCH
 }
 
 @Composable

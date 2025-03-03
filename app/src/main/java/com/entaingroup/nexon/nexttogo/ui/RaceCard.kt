@@ -216,7 +216,7 @@ internal fun Preview_RaceCard(
         RaceCard(
             race = race,
             timeProvider = object : TimeProvider {
-                override fun now() = Instant.ofEpochSecond(0)
+                override fun now() = Instant.EPOCH
             },
             ticker = emptyFlow(),
         )
@@ -248,7 +248,7 @@ internal class RaceProvider :
             meetingName = "Greyhoundwick",
             raceNumber = 16,
             category = RacingCategory.GREYHOUND,
-            startTime = Instant.ofEpochSecond(0),
+            startTime = Instant.EPOCH,
         )
         val GREYHOUND_ALREADY_STARTED = Race(
             id = "greyhound",
