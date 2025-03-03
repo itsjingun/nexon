@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.entaingroup.nexon.nexttogo.NextToGoRacesViewModel
+import com.entaingroup.nexon.nexttogo.ui.composable.NextToGoRacesScreen
 import com.entaingroup.nexon.ui.theme.NexonTheme
 import dagger.hilt.android.AndroidEntryPoint
 

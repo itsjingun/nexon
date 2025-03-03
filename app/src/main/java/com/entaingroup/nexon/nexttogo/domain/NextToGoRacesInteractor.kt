@@ -1,5 +1,7 @@
 package com.entaingroup.nexon.nexttogo.domain
 
+import com.entaingroup.nexon.nexttogo.domain.model.Race
+import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 import kotlinx.coroutines.flow.Flow
 
 internal interface NextToGoRacesInteractor {

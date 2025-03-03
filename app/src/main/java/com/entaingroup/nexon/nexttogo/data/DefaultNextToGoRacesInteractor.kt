@@ -1,15 +1,15 @@
 package com.entaingroup.nexon.nexttogo.data
 
-import com.entaingroup.nexon.dispatchers.DispatcherProvider
+import com.entaingroup.nexon.dispatcher.DispatcherProvider
 import com.entaingroup.nexon.nexttogo.data.api.NextToGoRacesApi
 import com.entaingroup.nexon.nexttogo.data.mapping.toDbRaces
 import com.entaingroup.nexon.nexttogo.data.persisted.DbRace
 import com.entaingroup.nexon.nexttogo.data.persisted.NextToGoDatabase
 import com.entaingroup.nexon.nexttogo.data.persisted.toRace
 import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
-import com.entaingroup.nexon.nexttogo.domain.Race
-import com.entaingroup.nexon.nexttogo.domain.RacingCategory
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
+import com.entaingroup.nexon.nexttogo.domain.model.Race
+import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 import com.entaingroup.nexon.utils.DateUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi

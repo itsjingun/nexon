@@ -1,11 +1,11 @@
-package com.entaingroup.nexon.nexttogo
+package com.entaingroup.nexon.nexttogo.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.entaingroup.nexon.nexttogo.NextToGoRacesContract.Companion.MAX_NUMBER_OF_RACES
 import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
-import com.entaingroup.nexon.nexttogo.domain.RacingCategory
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
+import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
+import com.entaingroup.nexon.nexttogo.ui.NextToGoRacesContract.Companion.MAX_NUMBER_OF_RACES
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

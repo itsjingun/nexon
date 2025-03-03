@@ -1,4 +1,4 @@
-package com.entaingroup.nexon.nexttogo.ui
+package com.entaingroup.nexon.nexttogo.ui.composable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

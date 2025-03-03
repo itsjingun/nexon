@@ -1,14 +1,14 @@
 package com.entaingroup.nexon.nexttogo.data
 
-import com.entaingroup.nexon.dispatchers.DispatcherProvider
+import com.entaingroup.nexon.dispatcher.DispatcherProvider
 import com.entaingroup.nexon.nexttogo.data.api.NextToGoRacesApi
 import com.entaingroup.nexon.nexttogo.data.mapping.toDbRaces
 import com.entaingroup.nexon.nexttogo.data.persisted.DbRaceDao
 import com.entaingroup.nexon.nexttogo.data.persisted.FakeDbRaceDao
 import com.entaingroup.nexon.nexttogo.data.persisted.NextToGoDatabase
 import com.entaingroup.nexon.nexttogo.data.persisted.toRaces
-import com.entaingroup.nexon.nexttogo.domain.Race
-import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.nexttogo.domain.model.Race
+import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import io.mockk.coEvery
 import io.mockk.coVerify

@@ -1,4 +1,4 @@
-package com.entaingroup.nexon.nexttogo.ui
+package com.entaingroup.nexon.nexttogo.ui.composable
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.entaingroup.nexon.R
-import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 import com.entaingroup.nexon.ui.theme.NexonTheme
 
 @Composable
@@ -79,6 +79,18 @@ internal fun Preview_CategoryFilterList() {
         CategoryFilterList(
             categories = allCategories,
             selectedCategories = emptySet(),
+            onCategoryChipClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+internal fun Preview_CategoryFilterList_PartiallySelected() {
+    NexonTheme {
+        CategoryFilterList(
+            categories = allCategories,
+            selectedCategories = setOf(RacingCategory.HARNESS),
             onCategoryChipClick = {},
         )
     }

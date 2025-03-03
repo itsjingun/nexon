@@ -1,4 +1,4 @@
-package com.entaingroup.nexon.nexttogo.domain
+package com.entaingroup.nexon.nexttogo.domain.model
 
 import java.time.Instant
 

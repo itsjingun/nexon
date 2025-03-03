@@ -1,4 +1,4 @@
-package com.entaingroup.nexon.nexttogo.ui
+package com.entaingroup.nexon.nexttogo.ui.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -36,9 +36,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.entaingroup.nexon.R
-import com.entaingroup.nexon.nexttogo.domain.Race
-import com.entaingroup.nexon.nexttogo.domain.RacingCategory
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
+import com.entaingroup.nexon.nexttogo.domain.model.Race
+import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 import com.entaingroup.nexon.ui.theme.NexonTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow

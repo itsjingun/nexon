@@ -4,7 +4,7 @@ import com.entaingroup.nexon.nexttogo.data.api.AdvertisedStart
 import com.entaingroup.nexon.nexttogo.data.api.Data
 import com.entaingroup.nexon.nexttogo.data.api.NextRacesApiResponse
 import com.entaingroup.nexon.nexttogo.data.api.RaceSummary
-import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 
 internal fun sufficientNumberOfRaces() = NextRacesApiResponse(
     data = Data(

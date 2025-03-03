@@ -1,3 +1,3 @@
-package com.entaingroup.nexon.dispatchers
+package com.entaingroup.nexon.dispatcher
 
 class DefaultDispatcherProvider : DispatcherProvider

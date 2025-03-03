@@ -2,9 +2,10 @@ package com.entaingroup.nexon.nexttogo
 
 import app.cash.turbine.test
 import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
-import com.entaingroup.nexon.nexttogo.domain.Race
-import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.nexttogo.domain.model.Race
+import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
+import com.entaingroup.nexon.nexttogo.ui.NextToGoRacesViewModel
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just

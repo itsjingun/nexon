@@ -1,4 +1,4 @@
-package com.entaingroup.nexon.dispatchers
+package com.entaingroup.nexon.dispatcher
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

@@ -2,8 +2,8 @@ package com.entaingroup.nexon.nexttogo.di
 
 import android.content.Context
 import androidx.room.Room
-import com.entaingroup.nexon.dispatchers.DefaultDispatcherProvider
-import com.entaingroup.nexon.dispatchers.DispatcherProvider
+import com.entaingroup.nexon.dispatcher.DefaultDispatcherProvider
+import com.entaingroup.nexon.dispatcher.DispatcherProvider
 import com.entaingroup.nexon.nexttogo.data.persisted.NextToGoDatabase
 import dagger.Module
 import dagger.Provides

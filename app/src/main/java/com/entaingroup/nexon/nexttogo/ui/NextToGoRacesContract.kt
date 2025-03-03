@@ -1,7 +1,7 @@
-package com.entaingroup.nexon.nexttogo
+package com.entaingroup.nexon.nexttogo.ui
 
-import com.entaingroup.nexon.nexttogo.domain.Race
-import com.entaingroup.nexon.nexttogo.domain.RacingCategory
+import com.entaingroup.nexon.nexttogo.domain.model.Race
+import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 
 internal interface NextToGoRacesContract {
     data class ViewState(

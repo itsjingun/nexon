@@ -1,4 +1,4 @@
-package com.entaingroup.nexon.nexttogo.ui
+package com.entaingroup.nexon.nexttogo.ui.composable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,9 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.entaingroup.nexon.R
-import com.entaingroup.nexon.nexttogo.NextToGoRacesContract
-import com.entaingroup.nexon.nexttogo.domain.RacingCategory
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
+import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
+import com.entaingroup.nexon.nexttogo.ui.NextToGoRacesContract
 import kotlinx.coroutines.flow.Flow
 
 @Composable

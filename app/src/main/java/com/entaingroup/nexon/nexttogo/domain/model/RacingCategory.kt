@@ -1,4 +1,4 @@
-package com.entaingroup.nexon.nexttogo.domain
+package com.entaingroup.nexon.nexttogo.domain.model
 
 enum class RacingCategory(val id: String) {
     GREYHOUND("9daef0d7-bf3c-4f50-921d-8e818c60fe61"),
