@@ -234,17 +234,16 @@ internal fun getTimeRemainingUntil(now: Instant, then: Instant): Pair<String, St
     }
 
     val text = (if (isNegative) "-" else "") + parts.joinToString(" ")
-    val description = (if (isNegative) "Minus " else "") +
-            "${descriptionParts.joinToString(" ")} remaining"
+    val description =
+        (if (isNegative) "Minus " else "") + "${descriptionParts.joinToString(" ")} remaining"
 
     return Pair(text, description)
 }
 
 // region Previews
 
-@PreviewFontScale
-
 @Preview
+@PreviewFontScale
 @Composable
 internal fun Preview_RaceCard(
     @PreviewParameter(RaceProvider::class)

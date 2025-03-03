@@ -88,9 +88,8 @@ internal fun NextToGoRacesScreen(
 
 // region Previews
 
-@PreviewFontScale
-
 @Preview
+@PreviewFontScale
 @Composable
 internal fun Preview_NextToGoRacesScreen(
     @PreviewParameter(ViewStateProvider::class)
