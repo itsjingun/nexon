@@ -107,6 +107,8 @@ internal interface DbRaceDao {
 
 Meanwhile, an internal ticker runs every second to check whether the current time has reached the earliest race's expiry time. When that is reached, the above logical flow will resume from step 1 (if it isn't running already), triggering a database query to remove any expired races, and potentially fetch more data.
 
+**Whenever the category filters are changed**, `startRaceUpdates()` is called again to "reset" the interactor, and the above flow will recommence.
+
 ### Assumptions
 
 - `GET rest/v1/racing/` will never return a duplicate entry, or different items with the same ID.
