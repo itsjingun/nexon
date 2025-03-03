@@ -29,6 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +61,7 @@ internal fun RaceCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .semantics(mergeDescendants = true) {}
             .then(modifier),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -137,7 +140,9 @@ private fun RowScope.Title(meetingName: String, raceNumber: Int) {
                 append("R$raceNumber")
             }
         },
-        modifier = Modifier.weight(1.0f),
+        modifier = Modifier
+            .weight(1.0f)
+            .semantics { contentDescription = "$meetingName, race $raceNumber" },
         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
     )
 }
@@ -148,9 +153,9 @@ private fun Countdown(startTime: Instant, timeProvider: TimeProvider, ticker: Fl
         return Duration.between(timeProvider.now(), startTime).seconds < 300
     }
 
-    var timeRemaining by remember {
-        mutableStateOf(getTimeRemainingUntil(timeProvider.now(), startTime))
-    }
+    val (text, description) = getTimeRemainingUntil(timeProvider.now(), startTime)
+    var timeRemaining by remember { mutableStateOf(text) }
+    var timeRemainingDescription by remember { mutableStateOf(description) }
     var isStartingSoon by remember { mutableStateOf(lessThanFiveMinutesRemaining()) }
 
     val defaultBackgroundColor by rememberUpdatedState(
@@ -166,7 +171,9 @@ private fun Countdown(startTime: Instant, timeProvider: TimeProvider, ticker: Fl
     // Update remaining time every second.
     LaunchedEffect(Unit) {
         ticker.collect {
-            timeRemaining = getTimeRemainingUntil(timeProvider.now(), startTime)
+            val (t, d) = getTimeRemainingUntil(timeProvider.now(), startTime)
+            timeRemaining = t
+            timeRemainingDescription = d
             isStartingSoon = lessThanFiveMinutesRemaining()
         }
     }
@@ -179,7 +186,8 @@ private fun Countdown(startTime: Instant, timeProvider: TimeProvider, ticker: Fl
                 color = if (isStartingSoon) urgentBackgroundColor else defaultBackgroundColor,
                 shape = RoundedCornerShape(100),
             )
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .semantics { contentDescription = timeRemainingDescription },
         color = if (isStartingSoon) {
             MaterialTheme.colorScheme.error
         } else {
@@ -190,12 +198,17 @@ private fun Countdown(startTime: Instant, timeProvider: TimeProvider, ticker: Fl
 }
 
 /**
- * Get time remaining until an [Instant] in the format:
- * - 5h 9m 4s
- * - 24m 48s
- * - 0s
+ * Returns a pair with the time remaining until an [Instant], e.g.:
+ *
+ * - 5h 9m 4s | 5 hours 9 minutes 4 seconds remaining
+ * - 24m 48s | 24 minutes 48 seconds remaining
+ * - 0s | 0 seconds remaining
+ * - -42s | Minus 42 seconds remaining
+ *
+ * @return pair where first value is the visual representation, and second value is the content
+ * description for accessibility.
  */
-internal fun getTimeRemainingUntil(now: Instant, then: Instant): String {
+internal fun getTimeRemainingUntil(now: Instant, then: Instant): Pair<String, String> {
     val duration = Duration.between(now, then)
     val isNegative = duration.seconds < 0
     val diff = abs(duration.seconds)
@@ -205,12 +218,26 @@ internal fun getTimeRemainingUntil(now: Instant, then: Instant): String {
     val seconds = diff % 60
 
     val parts = mutableListOf<String>()
-    if (hours > 0) parts.add("${hours}h")
-    if (minutes > 0) parts.add("${minutes}m")
-    if (seconds > 0 || (hours == 0L && minutes == 0L)) parts.add("${seconds}s")
+    val descriptionParts = mutableListOf<String>()
 
-    val result = parts.joinToString(" ")
-    return if (isNegative) "-$result" else result
+    if (hours > 0) {
+        parts.add("${hours}h")
+        descriptionParts.add("$hours hour" + if (hours != 1L) "s" else "")
+    }
+    if (minutes > 0) {
+        parts.add("${minutes}m")
+        descriptionParts.add("$minutes minute" + if (minutes != 1L) "s" else "")
+    }
+    if (seconds > 0 || (hours == 0L && minutes == 0L)) {
+        parts.add("${seconds}s")
+        descriptionParts.add("$seconds second" + if (seconds != 1L) "s" else "")
+    }
+
+    val text = (if (isNegative) "-" else "") + parts.joinToString(" ")
+    val description = (if (isNegative) "Minus " else "") +
+            "${descriptionParts.joinToString(" ")} remaining"
+
+    return Pair(text, description)
 }
 
 // region Previews

@@ -1,6 +1,5 @@
 package com.entaingroup.nexon.nexttogo.ui.composable
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
@@ -14,10 +13,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.entaingroup.nexon.R
 import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 import com.entaingroup.nexon.nexttogo.ui.NextToGoRacesContract.Companion.DEFAULT_CATEGORIES
 import com.entaingroup.nexon.ui.theme.NexonTheme
@@ -39,12 +36,12 @@ internal fun CategoryFilterList(
             FilterChip(
                 selected = selected,
                 onClick = { onCategoryChipClick(category) },
-                label = { Text(stringResource(category.getReadableName())) },
+                label = { Text(category.getReadableName()) },
                 leadingIcon = if (selected) {
                     {
                         Icon(
                             imageVector = Icons.Filled.Done,
-                            contentDescription = "Selected",
+                            contentDescription = null,
                             modifier = Modifier.size(FilterChipDefaults.IconSize),
                         )
                     }
@@ -53,16 +50,6 @@ internal fun CategoryFilterList(
                 },
             )
         }
-    }
-}
-
-@StringRes
-private fun RacingCategory.getReadableName(): Int {
-    return when (this) {
-        RacingCategory.GREYHOUND -> R.string.racing_category_greyhound
-        RacingCategory.HARNESS -> R.string.racing_category_harness
-        RacingCategory.HORSE -> R.string.racing_category_horse
-        RacingCategory.UNKNOWN -> R.string.racing_category_unknown
     }
 }
 
