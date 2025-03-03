@@ -111,6 +111,7 @@ Meanwhile, an internal ticker runs every second to check whether the current tim
 
 - `GET rest/v1/racing/` will never return a duplicate entry, or different items with the same ID.
 - `GET rest/v1/racing/` will never return races that have already "expired".
+- `GET rest/v1/racing/` can handle counts up to 100 (currently set as the maximum).
 - Resources from `GET rest/v1/racing/` will always return a non-null `race_summaries, race_id`, `race_number`, `meeting_name`, `category_id`, and `advertised_start`.
 
 ## Improvements for the future
