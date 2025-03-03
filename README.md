@@ -21,11 +21,11 @@ Dark theme is also supported.
 
 | Smart Loading | Automatic Removal | Filter by Category |
 |-|-|-|
-| <img src="https://github.com/user-attachments/assets/cb077bdb-3ca6-4b3a-9db2-611f52edfeed" width=300 /> | <img src="https://github.com/user-attachments/assets/7f8ff9a8-beb5-468f-8c65-335c440b1150" width=300 /> | <img src="https://github.com/user-attachments/assets/ffc83696-05fb-4dae-8285-db0a52ad70e9" width=300 /> |
+| <img src="https://github.com/user-attachments/assets/cb077bdb-3ca6-4b3a-9db2-611f52edfeed" width=240 /> | <img src="https://github.com/user-attachments/assets/7f8ff9a8-beb5-468f-8c65-335c440b1150" width=240 /> | <img src="https://github.com/user-attachments/assets/ffc83696-05fb-4dae-8285-db0a52ad70e9" width=240 /> |
 
 #### Dark Theme
 
-<img src="https://github.com/user-attachments/assets/99756ce3-2cb3-4eb7-940b-48734881a5aa" width=300>
+<img src="https://github.com/user-attachments/assets/99756ce3-2cb3-4eb7-940b-48734881a5aa" width=340>
 
 ## Architecture overview
 
