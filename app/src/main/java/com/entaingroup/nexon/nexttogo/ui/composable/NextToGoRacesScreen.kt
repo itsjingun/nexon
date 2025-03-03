@@ -13,12 +13,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.entaingroup.nexon.R
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
+import com.entaingroup.nexon.nexttogo.domain.model.Race
 import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 import com.entaingroup.nexon.nexttogo.ui.NextToGoRacesContract
+import com.entaingroup.nexon.nexttogo.ui.NextToGoRacesContract.Companion.DEFAULT_CATEGORIES
+import com.entaingroup.nexon.ui.theme.NexonTheme
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import java.time.Instant
 
 @Composable
 internal fun NextToGoRacesScreen(
@@ -76,3 +85,81 @@ internal fun NextToGoRacesScreen(
         }
     }
 }
+
+// region Previews
+
+@PreviewFontScale
+
+@Preview
+@Composable
+internal fun Preview_NextToGoRacesScreen(
+    @PreviewParameter(ViewStateProvider::class)
+    viewState: NextToGoRacesContract.ViewState,
+) {
+    NexonTheme {
+        NextToGoRacesScreen(
+            viewState = viewState,
+            timeProvider = object : TimeProvider {
+                override fun now() = Instant.EPOCH
+            },
+            onCategoryChipClick = {},
+            onTryAgainButtonClick = {},
+            ticker = emptyFlow(),
+        )
+    }
+}
+
+internal class ViewStateProvider :
+    PreviewParameterProvider<NextToGoRacesContract.ViewState> {
+    override val values = sequenceOf(
+        UNFILLED,
+        PARTIALLY_FILLED,
+        FILLED,
+        ERROR,
+    )
+
+    companion object {
+        val UNFILLED = NextToGoRacesContract.ViewState(
+            races = emptyList(),
+            categories = DEFAULT_CATEGORIES,
+            selectedCategories = DEFAULT_CATEGORIES,
+            showError = false,
+        )
+        val PARTIALLY_FILLED = NextToGoRacesContract.ViewState(
+            races = (1..3).map { i ->
+                Race(
+                    id = "$i",
+                    meetingName = "Greyhoundwick",
+                    raceNumber = i,
+                    category = RacingCategory.GREYHOUND,
+                    startTime = Instant.ofEpochSecond(i * 123L),
+                )
+            },
+            categories = DEFAULT_CATEGORIES,
+            selectedCategories = DEFAULT_CATEGORIES,
+            showError = false,
+        )
+        val FILLED = NextToGoRacesContract.ViewState(
+            races = (1..5).map { i ->
+                Race(
+                    id = "$i",
+                    meetingName = "Greyhoundwick",
+                    raceNumber = i,
+                    category = RacingCategory.GREYHOUND,
+                    startTime = Instant.ofEpochSecond(i * 123L),
+                )
+            },
+            categories = DEFAULT_CATEGORIES,
+            selectedCategories = DEFAULT_CATEGORIES,
+            showError = false,
+        )
+        val ERROR = NextToGoRacesContract.ViewState(
+            races = emptyList(),
+            categories = DEFAULT_CATEGORIES,
+            selectedCategories = DEFAULT_CATEGORIES,
+            showError = true,
+        )
+    }
+}
+
+// endregion

@@ -13,22 +13,19 @@ internal interface NextToGoRacesContract {
         companion object {
             val INITIAL = ViewState(
                 races = emptyList(),
-                categories = setOf(
-                    RacingCategory.GREYHOUND,
-                    RacingCategory.HARNESS,
-                    RacingCategory.HORSE,
-                ),
-                selectedCategories = setOf(
-                    RacingCategory.GREYHOUND,
-                    RacingCategory.HARNESS,
-                    RacingCategory.HORSE,
-                ),
+                categories = DEFAULT_CATEGORIES,
+                selectedCategories = DEFAULT_CATEGORIES,
                 showError = false,
             )
         }
     }
 
     companion object {
+        val DEFAULT_CATEGORIES = setOf(
+            RacingCategory.GREYHOUND,
+            RacingCategory.HARNESS,
+            RacingCategory.HORSE,
+        )
         const val MAX_NUMBER_OF_RACES = 5
     }
 }

@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.entaingroup.nexon.R
 import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
+import com.entaingroup.nexon.nexttogo.ui.NextToGoRacesContract.Companion.DEFAULT_CATEGORIES
 import com.entaingroup.nexon.ui.theme.NexonTheme
 
 @Composable
@@ -67,17 +68,12 @@ private fun RacingCategory.getReadableName(): Int {
 
 // region Previews
 
-private val allCategories = RacingCategory
-    .entries
-    .filterNot { it == RacingCategory.UNKNOWN }
-    .toSet()
-
 @Preview(showBackground = true)
 @Composable
 internal fun Preview_CategoryFilterList() {
     NexonTheme {
         CategoryFilterList(
-            categories = allCategories,
+            categories = DEFAULT_CATEGORIES,
             selectedCategories = emptySet(),
             onCategoryChipClick = {},
         )
@@ -89,7 +85,7 @@ internal fun Preview_CategoryFilterList() {
 internal fun Preview_CategoryFilterList_PartiallySelected() {
     NexonTheme {
         CategoryFilterList(
-            categories = allCategories,
+            categories = DEFAULT_CATEGORIES,
             selectedCategories = setOf(RacingCategory.HARNESS),
             onCategoryChipClick = {},
         )
@@ -101,8 +97,8 @@ internal fun Preview_CategoryFilterList_PartiallySelected() {
 internal fun Preview_CategoryFilterList_AllSelected() {
     NexonTheme {
         CategoryFilterList(
-            categories = allCategories,
-            selectedCategories = allCategories,
+            categories = DEFAULT_CATEGORIES,
+            selectedCategories = DEFAULT_CATEGORIES,
             onCategoryChipClick = {},
         )
     }
