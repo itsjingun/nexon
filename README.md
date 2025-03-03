@@ -25,7 +25,7 @@ Dark theme is also supported.
 
 #### Dark Theme
 
-<img src="https://github.com/user-attachments/assets/99756ce3-2cb3-4eb7-940b-48734881a5aa" width=340>
+<img src="https://github.com/user-attachments/assets/99756ce3-2cb3-4eb7-940b-48734881a5aa" width=240>
 
 ## Architecture overview
 
