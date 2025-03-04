@@ -6,7 +6,7 @@ import com.entaingroup.nexon.nexttogo.data.mapping.toDbRaces
 import com.entaingroup.nexon.nexttogo.data.persisted.DbRace
 import com.entaingroup.nexon.nexttogo.data.persisted.NextToGoDatabase
 import com.entaingroup.nexon.nexttogo.data.persisted.toRace
-import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
+import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesAutoUpdater
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import com.entaingroup.nexon.nexttogo.domain.model.Race
 import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
@@ -29,12 +29,12 @@ import timber.log.Timber
 import java.time.Instant
 import javax.inject.Inject
 
-internal class DefaultNextToGoRacesInteractor @Inject constructor(
+internal class DefaultNextToGoRacesAutoUpdater @Inject constructor(
     private val nextToGoRacesApi: NextToGoRacesApi,
     private val nextToGoDatabase: NextToGoDatabase,
     private val timeProvider: TimeProvider,
     private val dispatcher: DispatcherProvider,
-) : NextToGoRacesInteractor {
+) : NextToGoRacesAutoUpdater {
     private val mutableNextRaces = MutableSharedFlow<List<Race>>()
     override val nextRaces: Flow<List<Race>> = mutableNextRaces.asSharedFlow()
 

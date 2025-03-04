@@ -2,7 +2,7 @@ package com.entaingroup.nexon.nexttogo.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
+import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesAutoUpdater
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 import com.entaingroup.nexon.nexttogo.ui.NextToGoRacesContract.Companion.MAX_NUMBER_OF_RACES
@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class NextToGoRacesViewModel @Inject constructor(
-    private val nextToGoRacesInteractor: NextToGoRacesInteractor,
+    private val nextToGoRacesAutoUpdater: NextToGoRacesAutoUpdater,
     val timeProvider: TimeProvider,
 ) : ViewModel() {
     private val mutableViewState = MutableStateFlow(NextToGoRacesContract.ViewState.INITIAL)
@@ -43,12 +43,12 @@ internal class NextToGoRacesViewModel @Inject constructor(
         if (isInitialized) return
         isInitialized = true
 
-        nextToGoRacesInteractor.backgroundErrors
+        nextToGoRacesAutoUpdater.backgroundErrors
             .onEach { error -> handleError(error) }
             .launchIn(viewModelScope)
 
         viewModelScope.launch {
-            nextToGoRacesInteractor.nextRaces.collect { races ->
+            nextToGoRacesAutoUpdater.nextRaces.collect { races ->
                 mutableViewState.update { it.copy(races = races) }
             }
         }
@@ -64,7 +64,7 @@ internal class NextToGoRacesViewModel @Inject constructor(
     }
 
     private fun startRaceUpdates() {
-        nextToGoRacesInteractor.startRaceUpdates(
+        nextToGoRacesAutoUpdater.startRaceUpdates(
             count = MAX_NUMBER_OF_RACES,
             categories = mutableViewState.value.selectedCategories,
         )
@@ -72,7 +72,7 @@ internal class NextToGoRacesViewModel @Inject constructor(
 
     private fun handleError(throwable: Throwable) {
         // TODO: Possibly respond differently depending on type of error.
-        nextToGoRacesInteractor.stopRaceUpdates()
+        nextToGoRacesAutoUpdater.stopRaceUpdates()
         mutableViewState.update { it.copy(showError = true) }
     }
 
@@ -98,7 +98,7 @@ internal class NextToGoRacesViewModel @Inject constructor(
             it.copy(selectedCategories = updatedCategories)
         }
 
-        nextToGoRacesInteractor.startRaceUpdates(
+        nextToGoRacesAutoUpdater.startRaceUpdates(
             count = MAX_NUMBER_OF_RACES,
             categories = updatedCategories,
         )

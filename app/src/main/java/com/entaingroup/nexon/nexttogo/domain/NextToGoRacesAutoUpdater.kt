@@ -4,7 +4,7 @@ import com.entaingroup.nexon.nexttogo.domain.model.Race
 import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
 import kotlinx.coroutines.flow.Flow
 
-internal interface NextToGoRacesInteractor {
+internal interface NextToGoRacesAutoUpdater {
     /**
      * A [Flow] that emits a list of upcoming [Race]s in chronological order.
      */

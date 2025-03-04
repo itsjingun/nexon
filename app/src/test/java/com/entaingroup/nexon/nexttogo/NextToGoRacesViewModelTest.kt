@@ -1,10 +1,10 @@
 package com.entaingroup.nexon.nexttogo
 
 import app.cash.turbine.test
-import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
+import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesAutoUpdater
+import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import com.entaingroup.nexon.nexttogo.domain.model.Race
 import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
-import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import com.entaingroup.nexon.nexttogo.ui.NextToGoRacesViewModel
 import io.mockk.Runs
 import io.mockk.every
@@ -21,21 +21,21 @@ import java.io.IOException
 import java.time.Instant
 
 class NextToGoRacesViewModelTest {
-    private val nextToGoRacesInteractor: NextToGoRacesInteractor = mockk()
+    private val nextToGoRacesAutoUpdater: NextToGoRacesAutoUpdater = mockk()
     private val timeProvider: TimeProvider = mockk()
 
     private lateinit var viewModel: NextToGoRacesViewModel
 
     @Before
     fun setUp() {
-        every { nextToGoRacesInteractor.nextRaces } returns emptyFlow()
-        every { nextToGoRacesInteractor.backgroundErrors } returns emptyFlow()
-        every { nextToGoRacesInteractor.startRaceUpdates(any(), any()) } just Runs
-        every { nextToGoRacesInteractor.stopRaceUpdates() } just Runs
+        every { nextToGoRacesAutoUpdater.nextRaces } returns emptyFlow()
+        every { nextToGoRacesAutoUpdater.backgroundErrors } returns emptyFlow()
+        every { nextToGoRacesAutoUpdater.startRaceUpdates(any(), any()) } just Runs
+        every { nextToGoRacesAutoUpdater.stopRaceUpdates() } just Runs
         every { timeProvider.now() } returns Instant.EPOCH
 
         viewModel = NextToGoRacesViewModel(
-            nextToGoRacesInteractor = nextToGoRacesInteractor,
+            nextToGoRacesAutoUpdater = nextToGoRacesAutoUpdater,
             timeProvider = timeProvider,
         )
     }
@@ -58,7 +58,7 @@ class NextToGoRacesViewModelTest {
             category = RacingCategory.HORSE,
             startTime = Instant.EPOCH,
         )
-        every { nextToGoRacesInteractor.nextRaces } returns flowOf(
+        every { nextToGoRacesAutoUpdater.nextRaces } returns flowOf(
             listOf(dummyRace1),
             listOf(dummyRace1, dummyRace2),
         )
@@ -69,7 +69,7 @@ class NextToGoRacesViewModelTest {
             viewModel.initialize()
 
             assertEquals(emptyList<Race>(), awaitItem().races)
-            verify(exactly = 1) { nextToGoRacesInteractor.startRaceUpdates(any(), any()) }
+            verify(exactly = 1) { nextToGoRacesAutoUpdater.startRaceUpdates(any(), any()) }
 
             // Then
 
@@ -97,7 +97,7 @@ class NextToGoRacesViewModelTest {
 
             assertEquals(initialCategories, awaitItem().selectedCategories)
             verify(exactly = 1) {
-                nextToGoRacesInteractor.startRaceUpdates(
+                nextToGoRacesAutoUpdater.startRaceUpdates(
                     any(),
                     initialCategories,
                 )
@@ -111,7 +111,7 @@ class NextToGoRacesViewModelTest {
 
             assertEquals(updatedCategories, awaitItem().selectedCategories)
             verify(exactly = 1) {
-                nextToGoRacesInteractor.startRaceUpdates(
+                nextToGoRacesAutoUpdater.startRaceUpdates(
                     any(),
                     updatedCategories,
                 )
@@ -142,7 +142,7 @@ class NextToGoRacesViewModelTest {
 
             assertEquals(setOf(RacingCategory.HARNESS), awaitItem().selectedCategories)
             verify(exactly = 1) {
-                nextToGoRacesInteractor.startRaceUpdates(
+                nextToGoRacesAutoUpdater.startRaceUpdates(
                     any(),
                     setOf(RacingCategory.HARNESS),
                 )
@@ -154,7 +154,7 @@ class NextToGoRacesViewModelTest {
     fun givenNoInternet_whenRaceUpdatesStarted_thenShowError() = runTest {
         // Given
 
-        every { nextToGoRacesInteractor.backgroundErrors } returns flowOf(IOException())
+        every { nextToGoRacesAutoUpdater.backgroundErrors } returns flowOf(IOException())
 
         viewModel.viewState.test {
             // When
@@ -162,12 +162,12 @@ class NextToGoRacesViewModelTest {
             viewModel.initialize()
 
             assertEquals(false, awaitItem().showError)
-            verify { nextToGoRacesInteractor.startRaceUpdates(any(), any()) }
+            verify { nextToGoRacesAutoUpdater.startRaceUpdates(any(), any()) }
 
             // Then
 
             assertEquals(true, awaitItem().showError)
-            verify { nextToGoRacesInteractor.stopRaceUpdates() }
+            verify { nextToGoRacesAutoUpdater.stopRaceUpdates() }
         }
     }
 }

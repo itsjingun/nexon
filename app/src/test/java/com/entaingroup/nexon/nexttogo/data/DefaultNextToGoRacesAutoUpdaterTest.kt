@@ -7,9 +7,9 @@ import com.entaingroup.nexon.nexttogo.data.persisted.DbRaceDao
 import com.entaingroup.nexon.nexttogo.data.persisted.FakeDbRaceDao
 import com.entaingroup.nexon.nexttogo.data.persisted.NextToGoDatabase
 import com.entaingroup.nexon.nexttogo.data.persisted.toRaces
+import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import com.entaingroup.nexon.nexttogo.domain.model.Race
 import com.entaingroup.nexon.nexttogo.domain.model.RacingCategory
-import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -30,10 +30,10 @@ import java.io.IOException
 import java.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class DefaultNextToGoRacesInteractorTest {
+class DefaultNextToGoRacesAutoUpdaterTest {
     private lateinit var testDispatcher: TestDispatcher
 
-    private lateinit var interactor: DefaultNextToGoRacesInteractor
+    private lateinit var autoUpdater: DefaultNextToGoRacesAutoUpdater
     private val nextToGoRacesApi: NextToGoRacesApi = mockk()
     private val nextToGoDatabase: NextToGoDatabase = mockk()
     private lateinit var dbRaceDao: DbRaceDao
@@ -45,7 +45,7 @@ class DefaultNextToGoRacesInteractorTest {
         dbRaceDao = FakeDbRaceDao()
         every { nextToGoDatabase.dbRaceDao() } returns dbRaceDao
 
-        interactor = DefaultNextToGoRacesInteractor(
+        autoUpdater = DefaultNextToGoRacesAutoUpdater(
             nextToGoRacesApi,
             nextToGoDatabase,
             object : TimeProvider {
@@ -71,13 +71,13 @@ class DefaultNextToGoRacesInteractorTest {
         // Capture race emissions.
         val values = mutableListOf<List<Race>>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            interactor.nextRaces.toList(values)
+            autoUpdater.nextRaces.toList(values)
         }
 
-        interactor.startRaceUpdates(5, emptySet())
+        autoUpdater.startRaceUpdates(5, emptySet())
         runCurrent()
         advanceTimeBy(59000)
-        interactor.stopRaceUpdates()
+        autoUpdater.stopRaceUpdates()
         runCurrent()
 
         // Then
@@ -110,13 +110,13 @@ class DefaultNextToGoRacesInteractorTest {
         // Capture race emissions.
         val values = mutableListOf<List<Race>>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            interactor.nextRaces.toList(values)
+            autoUpdater.nextRaces.toList(values)
         }
 
-        interactor.startRaceUpdates(5, emptySet())
+        autoUpdater.startRaceUpdates(5, emptySet())
         runCurrent()
         advanceTimeBy(60001)
-        interactor.stopRaceUpdates()
+        autoUpdater.stopRaceUpdates()
         runCurrent()
 
         // Then
@@ -154,13 +154,13 @@ class DefaultNextToGoRacesInteractorTest {
         // Capture race emissions.
         val values = mutableListOf<List<Race>>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            interactor.nextRaces.toList(values)
+            autoUpdater.nextRaces.toList(values)
         }
 
-        interactor.startRaceUpdates(5, emptySet())
+        autoUpdater.startRaceUpdates(5, emptySet())
         runCurrent()
         advanceTimeBy(1001)
-        interactor.stopRaceUpdates()
+        autoUpdater.stopRaceUpdates()
         runCurrent()
 
         // Then
@@ -200,13 +200,13 @@ class DefaultNextToGoRacesInteractorTest {
             // Capture race emissions.
             val values = mutableListOf<List<Race>>()
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-                interactor.nextRaces.toList(values)
+                autoUpdater.nextRaces.toList(values)
             }
 
-            interactor.startRaceUpdates(5, selectedCategories)
+            autoUpdater.startRaceUpdates(5, selectedCategories)
             runCurrent()
             advanceTimeBy(1000)
-            interactor.stopRaceUpdates()
+            autoUpdater.stopRaceUpdates()
             runCurrent()
 
             // Then
@@ -247,15 +247,15 @@ class DefaultNextToGoRacesInteractorTest {
         val errors = mutableListOf<Exception>()
         val backgroundDispatcher = UnconfinedTestDispatcher(testScheduler)
         backgroundScope.launch(backgroundDispatcher) {
-            interactor.nextRaces.toList(races)
+            autoUpdater.nextRaces.toList(races)
         }
         backgroundScope.launch(backgroundDispatcher) {
-            interactor.backgroundErrors.toList(errors)
+            autoUpdater.backgroundErrors.toList(errors)
         }
 
-        interactor.startRaceUpdates(5, emptySet())
+        autoUpdater.startRaceUpdates(5, emptySet())
         runCurrent()
-        interactor.stopRaceUpdates()
+        autoUpdater.stopRaceUpdates()
         runCurrent()
 
         // Then

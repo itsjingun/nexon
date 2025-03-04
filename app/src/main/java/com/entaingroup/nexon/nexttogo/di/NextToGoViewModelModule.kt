@@ -1,9 +1,9 @@
 package com.entaingroup.nexon.nexttogo.di
 
-import com.entaingroup.nexon.nexttogo.data.DefaultNextToGoRacesInteractor
+import com.entaingroup.nexon.nexttogo.data.DefaultNextToGoRacesAutoUpdater
 import com.entaingroup.nexon.nexttogo.data.DefaultTimeProvider
 import com.entaingroup.nexon.nexttogo.data.api.NextToGoRacesApi
-import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesInteractor
+import com.entaingroup.nexon.nexttogo.domain.NextToGoRacesAutoUpdater
 import com.entaingroup.nexon.nexttogo.domain.TimeProvider
 import dagger.Module
 import dagger.Provides
@@ -20,9 +20,9 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 internal object NextToGoViewModelModule {
     @Provides
     @ViewModelScoped
-    fun bindNextToGoRacesInteractor(
-        nextToGoRacesInteractor: DefaultNextToGoRacesInteractor,
-    ): NextToGoRacesInteractor = nextToGoRacesInteractor
+    fun bindNextToGoRacesAutoUpdater(
+        nextToGoRacesAutoUpdater: DefaultNextToGoRacesAutoUpdater,
+    ): NextToGoRacesAutoUpdater = nextToGoRacesAutoUpdater
 
     @Provides
     @ViewModelScoped

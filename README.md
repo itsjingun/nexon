@@ -53,7 +53,7 @@ com.entaingroup.nexon
 
 There are two unit test suites (which hopefully should cover the main logical flows):
 - `NextToGoRacesViewModelTest` for the ViewModel
-- `DefaultNextToGoRacesInteractorTest` for the bulk of the business logic
+- `DefaultNextToGoRacesAutoUpdaterTest` for the bulk of the business logic
 
 ## How the app updates data automatically
 
@@ -65,11 +65,11 @@ How the live race updates for the "Next to Go" feature essentially works:
 
 ### Technical breakdown
 
-*Please see [DefaultNextToGoRacesInteractor.kt](app/src/main/java/com/entaingroup/nexon/nexttogo/data/DefaultNextToGoRacesInteractor.kt).*
+*Please see [DefaultNextToGoRacesAutoUpdater.kt](app/src/main/java/com/entaingroup/nexon/nexttogo/data/DefaultNextToGoRacesAutoUpdater.kt).*
 
-When the main Activity is launched, `NextToGoRacesInteractor.startRaceUpdates()` will be called to start the automatic race updates:
+When the main Activity is launched, `NextToGoRacesAutoUpdater.startRaceUpdates()` will be called to start the automatic race updates:
 ```
-internal interface NextToGoRacesInteractor {
+internal interface NextToGoRacesAutoUpdater {
     /**  
      * A [Flow] that emits a list of upcoming [Race]s in chronological order.
      */
@@ -99,7 +99,7 @@ internal interface DbRaceDao {
     ...
 }
 ```
-2. The interactor checks if a sufficient number of races was provided (keep in mind the app is always trying to show 5 races on the screen):
+2. The Auto Updater checks if a sufficient number of races was provided (keep in mind the app is always trying to show 5 races on the screen):
 	- If there is enough data, then nothing will be done until the time when the earliest race expires.
 	- If there is not enough data, more data is fetched via the `rest/v1/racing/` API endpoint, and subsequently stored in the database (stale data is also deleted at the same time).
 3. If the database was updated in step 2, the database query is automatically rerun and new data is emitted to the UI.
@@ -107,7 +107,7 @@ internal interface DbRaceDao {
 
 Meanwhile, an internal ticker runs every second to check whether the current time has reached the earliest race's expiry time. When that is reached, the above logical flow will resume from step 1 (if it isn't running already), triggering a database query to remove any expired races, and potentially fetch more data.
 
-**Whenever the category filters are changed**, `startRaceUpdates()` is called again to "reset" the interactor, and the above flow will recommence.
+**Whenever the category filters are changed**, `startRaceUpdates()` is called again to "reset" the auto updater, and the above flow will recommence.
 
 ### Assumptions
 
@@ -118,7 +118,7 @@ Meanwhile, an internal ticker runs every second to check whether the current tim
 
 ## Improvements for the future
 
-- **Improved error handling.** Currently, if any exception is encountered during the background operation of `DefaultNextToGoRacesInteractor`, the UI will stop the updates and display a full screen error state (I kept it simple for time's sake). Naturally, we could implement some improved error handling where the app responds differently depending on the type of error. It could also show partial error states instead of replacing all the information on the screen.
+- **Improved error handling.** Currently, if any exception is encountered during the background operation of `DefaultNextToGoRacesAutoUpdater`, the UI will stop the updates and display a full screen error state (I kept it simple for time's sake). Naturally, we could implement some improved error handling where the app responds differently depending on the type of error. It could also show partial error states instead of replacing all the information on the screen.
 - **Smarter fetch counts.** At the moment, whenever you change category filters and there aren't enough races, the fetch count resets back to 10 (even if you've been on that filter combination before). It might make sense to keep track of fetches for filter combinations so that the next fetch has a larger count.
 - **Manual refresh.** Currently, all data fetching is handled automatically and the user has no way of explicitly refreshing the list of races.
 - **More unit tests.** I only added tests for the most common flows, because it would take too much time to add tests for every possible flow and edge case. If this were ever to be used in production, more coverage would naturally be ideal. Instrumented tests could also be added to test DAO operations using Room's in-memory database mode.
